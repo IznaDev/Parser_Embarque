@@ -1,0 +1,37 @@
+{
+    "capteurs":[
+        {
+            "type":"HCSR501",
+            "config":
+            {
+                "pin":80
+            },
+            "variables":[
+                {
+                    "id":"presence"
+                }
+            ]
+        }
+    ],
+    "actionneurs":[
+        {
+            "type":"MC286",
+            "variables":[
+                {
+                    "id":"moteur_bleu"
+                }
+            ]
+        }
+    ],
+    "comportements":
+    [
+        {
+            "if":"${presence} == 1",
+            "then":"${moteur_bleu} = 180"
+        },
+        {
+            "if":"${presence} == 0",
+            "then":"${moteur_bleu} = 0"
+        }
+    ]
+}
