@@ -32,9 +32,9 @@ add_executable(${test_app_name} model/addition.test.cpp
   model/bitwise_logical.test.cpp
   model/affectation.test.cpp)
 
-target_link_libraries(${test_app_name} PUBLIC model misc GTest::gtest_main)
+target_link_libraries(${test_app_name} PUBLIC ${app_name} GTest::gtest_main)
 
-target_include_directories(${test_app_name} PUBLIC include/model include/misc)
+target_include_directories(${test_app_name} PUBLIC include)
 
 include(GoogleTest)
 gtest_discover_tests(expression_parser_tests)

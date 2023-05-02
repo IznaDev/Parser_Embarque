@@ -10,7 +10,7 @@ project(${app_name} VERSION 0.1)
 
 
 
-add_library(expression_parser STATIC 
+add_library(${app_name} STATIC 
     src/expression.cpp
     src/parser.cpp 
     src/data_context.cpp
@@ -22,7 +22,9 @@ add_library(expression_parser STATIC
     src/utils.cpp)
     
 
-target_include_directories(expression_parser PUBLIC ${CMAKE_SOURCE_DIR}/include)
+target_include_directories(${app_name} PUBLIC ${PROJECT_SOURCE_DIR}/include)
+
+add_subdirectory(tests)
 
 
 
