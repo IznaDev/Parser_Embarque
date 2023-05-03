@@ -53,8 +53,16 @@ class IOutput: public virtual IDevice
 
 class IInputOutput: public virtual IInput, public virtual IOutput
 {
+};
+
+enum Device_Type{INPUT, OUTPUT, INPUTOUTPUT, INVALID};
+class IDeviceFactory
+{
     public:
-    IInputOutput(const char* id, const char* type, const DeviceSettings& settings):IDevice(id, type, settings){}
+        virtual Device_Type get_device_type(const char* type) const = 0;
+        virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) const = 0;
+        virtual IOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings) const  = 0;
+        virtual IInputOutput* buildInputOutput(const char* id, const char* type, const DeviceSettings& settings) const = 0;
 };
 
 class DeviceDataContext : public DataContext
@@ -212,29 +220,47 @@ class DeviceDataContext : public DataContext
             add_or_set_input(inputoutput);
             add_or_set_output(inputoutput);
         }
+
+        void add_or_set_device(const IDeviceFactory* factory, const char* id, const char* type, const DeviceSettings& settings )
+        {
+            Device_Type t= factory->get_device_type(type);
+            // En fonction des settings
+            switch(t)
+            {
+                case Device_Type::INPUT:
+                    add_or_set_input(factory->buildInput(id, type, settings));
+                    break;
+                case Device_Type::OUTPUT:
+                    add_or_set_output(factory->buildOutput(id, type, settings));
+                    break;
+                case Device_Type::INPUTOUTPUT:
+                    add_or_set_inputoutput(factory->buildInputOutput(id, type, settings));    
+                    break;
+                default: break;
+            }
+        }
         bool init()
         {
+            bool result=true;
             for(int i=0;i<inputs.size();i++)
             {
                 const char* key= inputs.get_key(i);
-                inputs[key]->init();
+                if(!outputs.exists(key))
+                {
+                    result = inputs[key]->init() && result;
+                }
             }
             for(int i=0;i<outputs.size();i++)
             {
                 const char* key= outputs.get_key(i);
-                outputs[key]->init();
+                result = outputs[key]->init() && result;
             }
+
+            return result;
         }
         
 };
 
-class IDeviceFactory
-{
-    public:
-        virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) = 0;
-        virtual IOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings) = 0;
-        virtual IInputOutput* buildInputOutput(const char* id, const char* type, const DeviceSettings& settings) = 0;
-};
 #include <random>
 
 class TestInputDevice: public virtual IInput
@@ -248,7 +274,7 @@ class TestInputDevice: public virtual IInput
 
         bool init() override
         {
-            cout << "J'ai initialisé avec le settings 'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl;
+            cout << get_id() << " initialisé avec le settings 'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl;
             return true;
         }
 
@@ -258,20 +284,112 @@ class TestInputDevice: public virtual IInput
         }
 };
 
+class TestOutputDevice: public virtual IOutput
+{
+    private:
+        long value;
+    public:
+        TestOutputDevice(const char* id, const DeviceSettings& settings): IDevice(id, "TestOutput", settings){}
+        bool are_settings_valid() const override
+        {
+            return settings.is_output() && settings.get_config().exists("pin");
+        }
+
+        bool init() override
+        {
+            cout << get_id() << " initialisé avec le settings 'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl;
+            return true;
+        }
+
+        bool set_value(const char* value_i, long value) override
+        {
+            this->value = value;
+            return true;
+        }
+        virtual bool increase_value(const char* value_i, long value) override
+        {
+            this->value+=value;
+            return true;
+        }
+        virtual bool decrease_value(const char* value_i, long value) override
+        {
+            this->value-=value;
+            return true;
+        }
+};
+
+class TestInputOutputDevice: public virtual IInputOutput
+{
+    private:
+        long value;
+    public:
+        TestInputOutputDevice(const char* id, const DeviceSettings& settings): IDevice(id, "TestInputOutput", settings){}
+        bool are_settings_valid() const override
+        {
+            return settings.is_input() && settings.is_output() && settings.get_config().exists("pin") && settings.get_config().exists("val_init");
+        }
+
+        bool init() override
+        {
+            value = settings.get_config().at_or_default("val_init", 5);
+            cout << get_id() << " initialisé avec:" << endl <<\
+             "'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl <<\
+             "'init_val' qui vaut " << settings.get_config().at_or_default("val_init", -1) << endl;
+            return true;
+        }
+
+        bool set_value(const char* value_i, long value) override
+        {
+            this->value = value;
+            return true;
+        }
+        virtual bool increase_value(const char* value_i, long value) override
+        {
+            this->value+=value;
+            return true;
+        }
+        virtual bool decrease_value(const char* value_i, long value) override
+        {
+            this->value-=value;
+            return true;
+        }
+
+        long get_value(const char* value_id) const override
+        {
+          return value;
+        }
+};
+
 class TestDefaultFactory: public IDeviceFactory
 {
     public:
-        virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) override
+        virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) const override
         {
             return new TestInputDevice(id, settings);
         }
-        virtual IOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings)
+        virtual IOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings) const override
         {
-            throw logic_error("Not implemented");
+            return new TestOutputDevice(id, settings);
         }
-        virtual IInputOutput* buildInputOutput(const char* id, const char* type, const DeviceSettings& settings)
+        virtual IInputOutput* buildInputOutput(const char* id, const char* type, const DeviceSettings& settings) const override
         {
-            throw logic_error("Not implemented");
+            return new TestInputOutputDevice(id, settings);
+        }
+        Device_Type get_device_type(const char* type) const override
+        {
+            if(type == "testinput")
+            {
+                return Device_Type::INPUT;
+            }
+            else if(type == "testoutput")
+            {
+                return Device_Type::OUTPUT;
+            }
+            else if(type == "testinputoutput")
+            {
+                return Device_Type::INPUTOUTPUT;
+            }
+            else return Device_Type::INVALID;
         }
 };
 
