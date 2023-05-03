@@ -4,52 +4,78 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+    cout << "argv[1]" << argv[1] << endl;
     std::string json = "{...}";
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
     //3. Générer le code qui décrit les settings
     // exemple target {"target":"test", ....}
-    //exemple device dans json {"id":"presence_1", "type":"HSCR501", "config":{"pin":5, "autre_param":3}, "inputs"["value"]}
+    //exemple device dans json:
+    /* {
+            "id":"test_2",
+            "type":"testinputoutput",
+            "config":
+            {
+                "pin":10,
+                "val_init":3
+            },
+            "inputs":["val"],
+            "outputs":["val"]
+    } */
     // doit donner
 
     IDeviceFactory* factory = Automation::getFactory("test");
     // A faire pour chaque device du json
-    Dictionary<const char*, long> config;
-    config["pin"] = 5;
-    config["autre_param"] = 3;
-    Dictionary<const char*, int> inputs;
-    inputs["value"]=0;
-    Dictionary<const char*, int> outputs;
-    DeviceSettings s(config, inputs, outputs);
-    DeviceDataContext dc;
-    // En fonction des settings
-    if(s.is_input() && ! s.is_output())
-    {
-        IInput* device = factory->buildInput("presence_1", "HSCR501", s);
-        dc.add_or_set_input(device);
-    }
-    dc.init();
 
-    MemoryDataContext mdc;
-    mdc.add_or_set("presence_1.value", 18);
-    
+    const char* id = "test_2";
+    const char* type = "testinputoutput";
+    Device_Type d_type = factory->get_device_type(type);
+    DeviceDataContext dc;
+    if(d_type!=Device_Type::INVALID)
+    {
+        Dictionary<const char*, long> config;
+        config["pin"] = 10;
+        config["val_init"] = 4;
+        Dictionary<const char*, int> inputs;
+        //la valeur à renseigner est l'index de val dans le tableau inputs
+        inputs["val"]=0;
+        Dictionary<const char*, int> outputs;
+        //la valeur à renseigner est l'index de val dans le tableau outputs
+        outputs["val"]=0;
+        DeviceSettings s(config, inputs, outputs);
+
+        dc.add_or_set_device(factory, id, type, s);
+    }
+    dc.init();   
 
     Expression_Parser parser;
-    auto result = parser.parse("${presence_1.value}");
-    if(result)
+    auto result = parser.parse("${test_2.val}");
+    auto result_if = parser.parse("${test_2.value} <= 0");
+    auto result_then = parser.parse("${test_2.val} += 3");
+    auto result_else = parser.parse("${test_2.val} -=2");
+    if(result && result_if && result_then && result_else)
     {
         for(int i=0;i<10;i++)
         {
-            cout << "Device presence(dc): " << result.expression->evaluate(&dc) << endl;
-            cout << "Device presence(mdc): " << result.expression->evaluate(&mdc) << endl;
+            cout << "Device value: " << result.expression->evaluate(&dc) << endl;
+            long if_val = result_if.expression->evaluate(&dc);
+            cout << "If ${test_2.value} <= 0: " << if_val << endl;
+            if(if_val)
+            {
+                result_then.expression->update(&dc);
+            }
+            else
+            {
+                result_else.expression->update(&dc);
+            }
         }
         
     }
     else
     {
-        cout << "Il y a eu une erreur: " << result.error_message << endl;
+        cout << "Il y a eu une erreur" << endl;
     }
     return 0;
 }
