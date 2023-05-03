@@ -53,7 +53,7 @@ int main()
     auto result = parser.parse("${test_2.val}");
     auto result_if = parser.parse("${test_2.value} <= 0");
     auto result_then = parser.parse("${test_2.val} += 2");
-    auto result_else = parser.parse("${test_2.val} -=2");
+    auto result_else = parser.parse("${test_2.val} -=5");
     if(result && result_if && result_then && result_else)
     {
         for(int i=0;i<10;i++)
