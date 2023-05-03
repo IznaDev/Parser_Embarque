@@ -11,52 +11,61 @@
  * 
  */
 
-#include <string>
-#include <map>
-#include <algorithm>
-#include <vector>
+#include "container.hpp"
+#include <string.h>
 
 using namespace std;
 
 class DataContext
 {
     public:
-        virtual bool exists(const string& reference) const noexcept= 0;
-        virtual long evaluate(const string& reference) const noexcept = 0;
-        virtual bool set(const string& reference, long value) noexcept = 0;
-        virtual bool increase(const string& reference, long increase_value) noexcept = 0;
-        virtual bool decrease(const string& reference, long decrease_value) noexcept = 0;
-        virtual vector<string> get_keys() const noexcept = 0;
+        virtual bool exists(const char* reference) const noexcept= 0;
+        virtual long evaluate(const char* reference) const noexcept = 0;
+        virtual bool set(const char* reference, long value) noexcept = 0;
+        virtual bool increase(const char* reference, long increase_value) noexcept = 0;
+        virtual bool decrease(const char* reference, long decrease_value) noexcept = 0;
+        virtual int get_size() const noexcept = 0;
+        virtual const char* get_key(int index) const noexcept = 0;
 };
 
 class MemoryDataContext: public DataContext
 {
     private:
-        map<string, long> values;
+        Dictionary<const char*, long> values;
     public:
-        bool exists(const string& reference) const noexcept override { return values.find(reference)!= values.end();}
-        long evaluate(const string& reference) const noexcept override {return values.at(reference);}
-        virtual bool set(const string& reference, long value) noexcept override 
+        bool exists(const char* reference) const noexcept override {return values.exists(reference);}
+        long evaluate(const char* reference) const noexcept override {
+            return values.at_or_default(reference, 0);
+        }
+        virtual bool set(const char* reference, long value) noexcept override 
         { 
-            if(exists(reference))
+            return values.set(reference, value);
+        }
+        bool increase(const char* reference, long increase_value) noexcept override 
+        { 
+            if(values.exists(reference))
             {
-                values[reference]=value;
+                values[reference]+=increase_value;
                 return true;
             }
-            return false;}
-        virtual bool increase(const string& reference, long increase_value) noexcept override { if(exists(reference)){values[reference]+=increase_value; return true;} return false;}
-        virtual bool decrease(const string& reference, long increase_value) noexcept override { if(exists(reference)){values[reference]-=increase_value; return true;} return false;}
-        vector<string> get_keys() const noexcept override{
-            vector<string> result;
-            for(const auto& p: values)
-            {
-                result.push_back(p.first);
-            }
-            return result;
+            return false;
         }
-        void add_or_set(const string& reference, long value)
+        bool decrease(const char* reference, long decrease_value) noexcept override 
+        {
+            if(values.exists(reference))
+            {
+                values[reference]-=decrease_value;
+                return true;
+            }
+            return false;
+        }
+        int get_size() const noexcept override {return values.size();}
+        const char* get_key(int index) const noexcept override
+        {
+            return values.get_key(index);
+        }
+        void add_or_set(const char* reference, long value)
         {
             values[reference] = value;
         }
-        operator map<string,long>() const {return values;}
 };

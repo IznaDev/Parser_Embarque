@@ -33,9 +33,9 @@ int main()
     dc.add_or_set("var_1", 5);
     dc.add_or_set("var_2", 3);
     cout << "List of references:" << endl;
-    for(pair<string,long> p: (map<string, long>)dc)
+    for(int i=0;i<dc.get_size();i++)
     {
-        cout << p.first << ": " << p.second << endl;
+        cout << dc.get_key(i) << ": " << dc.evaluate(dc.get_key(i)) << endl;
     }
     while(expression!="q")
     {

@@ -9,9 +9,9 @@ long Constant_Expression::evaluate(const DataContext* dc) const
 
 long Reference_Expression::evaluate(const DataContext* dc) const
 {
-    if(dc && dc->exists(reference))
+    if(dc && dc->exists(reference.c_str()))
     {
-        return dc->evaluate(reference);
+        return dc->evaluate(reference.c_str());
     }
     return 0;
 }

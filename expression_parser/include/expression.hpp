@@ -8,6 +8,7 @@
 #include "data_context.hpp"
 #include <numeric>
 #include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -96,7 +97,7 @@ class Reference_Expression: public Expression
         {
             if(dc)
             {
-                return dc->set(reference, value);
+                return dc->set(reference.c_str(), value);
             }
             return false;
         }
@@ -104,7 +105,7 @@ class Reference_Expression: public Expression
         {
             if(dc)
             {
-                return dc->increase(reference, value);
+                return dc->increase(reference.c_str(), value);
             }
             return false;
         }
@@ -112,7 +113,7 @@ class Reference_Expression: public Expression
         {
             if(dc)
             {
-                return dc->decrease(reference, value);
+                return dc->decrease(reference.c_str(), value);
             }
             return false;
         }

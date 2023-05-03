@@ -19,6 +19,7 @@ add_library(${app_name} STATIC
     src/expr_functions.cpp
     src/validation_handler.cpp
     src/expr_affectation.cpp
+    src/container.cpp
     src/utils.cpp)
     
 

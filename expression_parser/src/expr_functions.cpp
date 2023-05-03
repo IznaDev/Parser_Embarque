@@ -51,14 +51,16 @@ long Custom_Function_Expression::evaluate(const DataContext* dc) const
     int i=1;
     if(dc != nullptr)
     {
-        for (const auto& k: dc->get_keys())
+        int dc_size = dc->get_size();
+        for (int i=0;i<dc_size;i++)
         {
-            mdc.add_or_set(k, dc->evaluate(k));
+            const char* key = dc->get_key(i);
+            mdc.add_or_set(key, dc->evaluate(key));
         }
     }
     for(const auto& a: args)
     {
-        mdc.add_or_set(std::to_string(i++), a->evaluate(dc));
+        mdc.add_or_set(std::to_string(i++).c_str(), a->evaluate(dc));
     }
     return expression->evaluate(&mdc);
 }
