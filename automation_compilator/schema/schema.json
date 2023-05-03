@@ -1,0 +1,60 @@
+{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "$id": "http://json-schema.org/draft-07/schema#",
+    "title": "Automate",
+    "description": "Automate permettant de générer du code Arduino en fonction des éléments qui y sont liés.",
+    "type" : "object",
+    "properties": {
+        "target": {
+            "description": "Type de carte sur laquelle on souhaite développer",
+            "type": "string"
+        },
+        "devices": {
+            "description": "Type(s) d'élément(s) possible(s)",
+            "type": "array",
+            "uniqueItems": true,
+            "items": {
+                "description": "Caractèristiques de l'élément",
+                "type": "object",
+                "properties": {
+                    "id": {
+                        "description": "Identifiant de l'élément",
+                        "type": "string"
+                    },
+                    "type": {
+                        "description": "Nom de l'élément",
+                        "type": "string"
+                    }
+                },
+                "required": ["id", "type"]
+            }
+        },
+        "behaviors": {
+            "description": "Comportements des éléments",
+            "type": "array",
+            "items": {
+                "description": "Caractéristiques du Comportements",
+                "type": "object",
+                "properties": {
+                    "if": {
+                        "description": "Condition initiale",
+                        "type": "string"
+                    },
+                    "then": {
+                        "description": "Action à effectuer si la condition est remplie",
+                        "type": "string"
+                    },
+                    "else": {
+                        "description": "Action à effectuer si la condition n'est pas remplie",
+                        "anyOf": [
+                            {"type": "string"},
+                            {"type": "array"}
+                        ]
+                    }
+                },
+                "required": ["if", "then", "else"]
+            }
+        }
+    },
+    "required": ["target", "devices", "behaviors"]
+}

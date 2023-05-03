@@ -1,13 +1,32 @@
 #include "parser.hpp"
 #include "automation.hpp"
+#include "include/validator.hpp"
 #include <iostream>
+
+#define SCHEMA_PATH "../automation_compilator/schema/schema.json"
 
 using namespace std;
 
 int main(int argc, char* argv[])
 {
-    cout << "argv[1]" << argv[1] << endl;
-    std::string json = "{...}";
+    if(argc > 2)
+    {
+        cout << "Trop d'arguments ! " << endl;
+        return EXIT_FAILURE;
+    }
+
+    string filepath = argv[1];
+
+    isExist(filepath);
+    isCorrect(filepath);
+    validJson(SCHEMA_PATH, filepath);
+
+    ifstream inputFile(filepath);
+    json fileParse = json::parse(inputFile);
+    inputFile.close();
+
+    cout << "Mathias, ça marche!!" << endl;
+    //std::string json = "{...}";
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
     //3. Générer le code qui décrit les settings
@@ -26,6 +45,7 @@ int main(int argc, char* argv[])
     } */
     // doit donner
 
+    /*
     IDeviceFactory* factory = Automation::getFactory("test");
     // A faire pour chaque device du json
 
@@ -77,5 +97,6 @@ int main(int argc, char* argv[])
     {
         cout << "Il y a eu une erreur" << endl;
     }
+    */
     return 0;
 }
