@@ -1,0 +1,15 @@
+{
+    "target":"arduino",
+    "behaviors":[
+        {
+            "if":"${presence_1.value} > 0",
+            "then": "${lampe_1.value} = 255",
+            "else": ["${lampe_1.value} = 0"]
+        },
+        {
+            "if":"${presence_2.val}",
+            "then": "${lampe_1.value} = 255",
+            "else": ["${lampe_1.value} = 0"]
+        }
+    ]
+}

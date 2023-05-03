@@ -1,0 +1,41 @@
+{
+    "target":"arduino",
+    "devices":[
+        {
+            "id":"presence_1",
+            "type":"HCSR501",
+            "config":
+            {
+                "pin":15,
+                "variable_specifique": 3
+            },
+            "inputs":["value"]
+        },
+        {
+            "id":"presence_1",
+            "type":"HCSR501",
+            "config":
+            {
+                "pin":15,
+                "variable_specifique": 3
+            },
+            "inputs":["val"]
+        },
+        {
+            "id":"lampe_1",
+            "type":"led",
+            "config":
+            {
+                "pin":12
+            },
+            "inputs":["value"],
+            "outputs":["value"]          
+        }
+    ],
+    "behaviors":[
+        {
+            "if":"${presence_1.value} > 0",
+            "then": "${lampe_1.value} = 255"
+        }
+    ]
+}
