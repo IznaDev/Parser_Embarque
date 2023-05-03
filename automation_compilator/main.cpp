@@ -4,8 +4,9 @@
 
 using namespace std;
 
-int main()
+int main(int argc, char* argv[])
 {
+    cout << "argv[1]" << argv[1] << endl;
     std::string json = "{...}";
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
@@ -36,7 +37,7 @@ int main()
     {
         Dictionary<const char*, long> config;
         config["pin"] = 10;
-        config["val_init"] = 3;
+        config["val_init"] = 4;
         Dictionary<const char*, int> inputs;
         //la valeur à renseigner est l'index de val dans le tableau inputs
         inputs["val"]=0;
@@ -52,8 +53,8 @@ int main()
     Expression_Parser parser;
     auto result = parser.parse("${test_2.val}");
     auto result_if = parser.parse("${test_2.value} <= 0");
-    auto result_then = parser.parse("${test_2.val} += 2");
-    auto result_else = parser.parse("${test_2.val} -=5");
+    auto result_then = parser.parse("${test_2.val} += 3");
+    auto result_else = parser.parse("${test_2.val} -=2");
     if(result && result_if && result_then && result_else)
     {
         for(int i=0;i<10;i++)
