@@ -40,11 +40,18 @@ Expression_Parser::Expression_Parser()
     
 }
 
-void add_member(unique_ptr<Operation_Expression>& expr, unique_ptr<Expression>& member, bool is_left_member)
+void add_member(unique_ptr<Operation_Expression>& expr, unique_ptr<Expression>& member, unique_ptr<Reference_Expression>& ref_member, bool is_left_member)
 {
     if(expr->can_add_member() && (!is_left_member || expr->has_left_member()))
     {
-        expr->add_member(move(member));
+        if(ref_member)
+        {
+            expr->add_ref_member(move(ref_member));
+        }
+        else
+        {
+            expr->add_member(move(member));
+        }
     }
     else
     {
@@ -233,11 +240,12 @@ vector<string> Expression_Parser::getSupportedOperatorsReg() const
 void unstack_operations(stack<unique_ptr<Operation_Expression>>& ops)
 {
     unique_ptr<Expression> member{nullptr};
+    unique_ptr<Reference_Expression> ref_member{nullptr};
     while(ops.size()>1)
     {
         member = move(ops.top());
         ops.pop();
-        add_member(ops.top(), member, false);
+        add_member(ops.top(), member, ref_member, false);
     }
 }
 
@@ -423,6 +431,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
     ostringstream word{""s};
     unique_ptr<Operation_Expression> current{nullptr};
     unique_ptr<Expression> member{nullptr};
+    unique_ptr<Reference_Expression> ref_member{nullptr};
     stack<unique_ptr<Operation_Expression>> ops;
     vector<string> supportedOperators = getSupportedOperators();
     vector<string> supportedFunctions = getSupportedFunctions();
@@ -455,7 +464,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
             }
             else if(is_reference_id(s, id))
             {
-                member = make_unique<Reference_Expression>(id);
+                ref_member = make_unique<Reference_Expression>(id);
                 continue;
             }
             else if(is_id(supportedFunctions, s, id))
@@ -478,7 +487,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
             {
                 // If member is not defined make member as constant expression
                 string constant = word.str();
-                if(!member)
+                if(!member && !ref_member)
                 {
                     member = make_unique<Constant_Expression>(constant);
                 }
@@ -493,12 +502,12 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                     if(*ops.top() < *current)
                     {
                         // Member is added to the current operator
-                        add_member(current, member, true);
+                        add_member(current, member, ref_member, true);
                     }
                     else
                     {
                         // Member is added  to previous operator
-                        add_member(ops.top(), member, false);
+                        add_member(ops.top(), member, ref_member, false);
                         // If new operator has lower priority previous members can be merged
                         if(*current < *ops.top())
                         {
@@ -509,14 +518,14 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                         // There is one (after unstack) or more operations
                         member = move(ops.top());
                         // Previous operation is merged to the current
-                        add_member(current, member, true);
+                        add_member(current, member, ref_member, true);
                         ops.pop(); 
                     }
                 }
                 else
                 {
                     // Member is added to current operation
-                    add_member(current, member, true);
+                    add_member(current, member, ref_member, true);
                 }
                 // Current operation is added to the stack
                 ops.push(move(current));
@@ -529,7 +538,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
         }
         // At the end of the stream one last member shoud remain.
         string constant = word.str();
-        if(!member)
+        if(!member && !ref_member)
         {
             member = make_unique<Constant_Expression>(constant);
         }
@@ -544,7 +553,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
     if(!ops.empty())
     {
         //Last member is added to last operation
-        add_member(ops.top(), member, false);
+        add_member(ops.top(), member, ref_member, false);
         // Previous operations are merged   
         unstack_operations(ops);
         // The result contains the top operation
@@ -554,7 +563,15 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
     else
     {
         //In case no operators the expression is a group or a constant
-        result.expression = move(member);
+        if(ref_member)
+        {
+            result.expression = move(ref_member);
+        }
+        else
+        {
+            result.expression = move(member);
+        }
+        
     }
     return result;
 }

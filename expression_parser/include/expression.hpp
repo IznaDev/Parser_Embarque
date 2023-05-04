@@ -32,60 +32,6 @@ class Constant_Expression: public Expression
         string to_string() const override {return value;}
 };
 
-class Operation_Expression: public Expression
-{
-    protected:
-        string id;
-        int priority{0};
-    public:
-        Operation_Expression(const string& id, int priority=0): id(id), priority(priority){}
-        bool operator <(const Operation_Expression& other){return this->priority < other.priority;}
-        bool operator ==(const Operation_Expression& other){return this->priority == other.priority;}
-        virtual void add_member(unique_ptr<Expression>&& expr) = 0;
-        virtual bool can_add_member() const = 0;
-        virtual bool has_left_member() const = 0;
-        virtual string get_reg_id() const {return id;};
-};
-
-
-class Unary_Operation_Expression: public Operation_Expression
-{
-    protected:
-    unique_ptr<Expression> right_member{nullptr};
-    public:
-        Unary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
-        bool can_add_member() const override {return !right_member;}
-        bool has_left_member() const override {return false;}
-        void add_member(unique_ptr<Expression>&& expr) override {
-            right_member = move(expr);
-        }
-        string to_string() const override {return id +"(" + right_member->to_string() + ")";} 
-
-};
-
-class Binary_Operation_Expression: public Operation_Expression
-{
-    protected:
-    unique_ptr<Expression> left_member{nullptr};
-    unique_ptr<Expression> right_member{nullptr};
-    public:
-        Binary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
-        bool can_add_member() const override {return !(left_member && right_member);}
-        bool has_left_member() const override {return true;}
-        void add_member(unique_ptr<Expression>&& expr) override {
-            if(left_member)
-            {
-                right_member = move(expr);
-            }
-            else
-            {
-                left_member = move(expr);
-            }
-        }
-        string to_string() const override {return id +"(" + left_member->to_string() + ", " + right_member->to_string() + ")";} 
-
-};
-
 class Reference_Expression: public Expression
 {
     private:
@@ -118,5 +64,74 @@ class Reference_Expression: public Expression
             return false;
         }
         string to_string() const override {return "ref(" + reference +")";}
+};
+
+class Operation_Expression: public Expression
+{
+    protected:
+        string id;
+        int priority{0};
+    public:
+        Operation_Expression(const string& id, int priority=0): id(id), priority(priority){}
+        bool operator <(const Operation_Expression& other){return this->priority < other.priority;}
+        bool operator ==(const Operation_Expression& other){return this->priority == other.priority;}
+        virtual void add_member(unique_ptr<Expression>&& expr) = 0;
+        virtual void add_ref_member(unique_ptr<Reference_Expression>&& ref_expr) = 0;
+        virtual bool can_add_member() const = 0;
+        virtual bool has_left_member() const = 0;
+        virtual string get_reg_id() const {return id;};
+};
+
+
+class Unary_Operation_Expression: public Operation_Expression
+{
+    protected:
+    unique_ptr<Expression> right_member{nullptr};
+    public:
+        Unary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
+        bool can_add_member() const override {return !right_member;}
+        bool has_left_member() const override {return false;}
+        void add_member(unique_ptr<Expression>&& expr) override {
+            right_member = move(expr);
+        }
+        void add_ref_member(unique_ptr<Reference_Expression>&& expr) override {
+            right_member = move(expr);
+        }
+        string to_string() const override {return id +"(" + right_member->to_string() + ")";} 
+
+};
+
+class Binary_Operation_Expression: public Operation_Expression
+{
+    protected:
+    unique_ptr<Expression> left_member{nullptr};
+    unique_ptr<Expression> right_member{nullptr};
+    public:
+        Binary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
+        bool can_add_member() const override {return !(left_member && right_member);}
+        bool has_left_member() const override {return true;}
+        void add_member(unique_ptr<Expression>&& expr) override {
+            if(left_member)
+            {
+                right_member = move(expr);
+            }
+            else
+            {
+                left_member = move(expr);
+            }
+        }
+        void add_ref_member(unique_ptr<Reference_Expression>&& ref_expr) override
+        {
+            if(left_member)
+            {
+                right_member = move(ref_expr);
+            }
+            else
+            {
+                left_member = move(ref_expr);
+            }
+        }
+        string to_string() const override {return id +"(" + left_member->to_string() + ", " + right_member->to_string() + ")";} 
+
 };
 
