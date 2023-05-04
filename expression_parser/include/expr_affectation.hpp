@@ -1,15 +1,5 @@
 #include "expression.hpp"
 
-template <typename To, typename From> 
-std::unique_ptr<To> dynamic_unique_cast(std::unique_ptr<From>&& p) {
-    if (To* cast = dynamic_cast<To*>(p.get()))
-    {
-        std::unique_ptr<To> result(cast);
-        p.release();
-        return result;
-    }
-    return std::unique_ptr<To>(nullptr); // or throw std::bad_cast() if you prefer
-}
 
 class Affectation_Expression: public Operation_Expression
 {
@@ -26,12 +16,20 @@ class Affectation_Expression: public Operation_Expression
             {
                 right_member = move(expr);
             }
+        }
+        void add_ref_member(unique_ptr<Reference_Expression>&& ref_expr) override
+        {
+            if(left_member)
+            {
+                right_member = move(ref_expr);
+            }
             else
             {
                 
-                left_member = dynamic_unique_cast<Reference_Expression>(move(expr));
+                left_member = move(ref_expr);
             }
         }
+
         string to_string() const override {return id +"(" + left_member->to_string() + ", " + right_member->to_string() + ")";}
 };
 
