@@ -6,6 +6,19 @@ class Affectation_Expression: public Operation_Expression
     protected:
         Reference_Expression* left_member{nullptr};
         Expression* right_member{nullptr};
+        void clean() override 
+        {
+            if(left_member)
+            {
+                delete left_member;
+                left_member = nullptr;
+            }
+            if(right_member)
+            {
+                delete right_member;
+                right_member = nullptr;
+            }
+        }
     public:
         Affectation_Expression(const char* id, int priority=-16): Operation_Expression(id, priority){}
         bool can_add_member() const override {return !(left_member && right_member);}

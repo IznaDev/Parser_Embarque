@@ -7,7 +7,10 @@ bool is_whitespace_or_empty(const char* text);
 
 class Expression
 {
+    protected:
+        virtual void clean(){}
     public:
+        virtual ~Expression(){ clean();}
         virtual long evaluate(const DataContext* dc = nullptr) const = 0;
         virtual bool update(DataContext* dc=nullptr){return false;}
         virtual bool is_updatable() const {return false;}
@@ -26,6 +29,8 @@ class Reference_Expression: public Expression
 {
     private:
         char* reference;
+    protected:
+        virtual void clean() override { delete[] reference;}
     public:
         Reference_Expression(const char* ref):reference(new char[strlen(ref)+1]){
             strcpy(reference, ref);
@@ -77,6 +82,7 @@ class Unary_Operation_Expression: public Operation_Expression
 {
     protected:
     Expression* right_member{nullptr};
+    void clean() override { if(right_member) {delete right_member; right_member= nullptr;}}
     public:
         Unary_Operation_Expression(const char* id, int priority=0): Operation_Expression(id, priority){}
         bool can_add_member() const override {return !right_member;}
@@ -100,6 +106,19 @@ class Binary_Operation_Expression: public Operation_Expression
     protected:
     Expression* left_member{nullptr};
     Expression* right_member{nullptr};
+    void clean() override
+    {
+        if(left_member)
+        {
+            delete left_member;
+            left_member = nullptr;
+        }
+        if(right_member)
+        {
+            delete right_member;
+            right_member = nullptr;
+        }
+    }
     public:
         Binary_Operation_Expression(const char* id, int priority=0): Operation_Expression(id, priority){}
         bool can_add_member() const override {return !(left_member && right_member);}

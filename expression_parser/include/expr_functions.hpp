@@ -8,6 +8,18 @@ class Function_Expression: public Expression
         const char* id;
         int last_index{0};
         Expression* args[Function_Expression::max_size];
+        void clean() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i])
+                {
+                    delete args[i];
+                    args[i]=nullptr;
+                }
+            }
+            last_index = 0;
+        }
     public:
         Function_Expression(const char* id): id(id){};
         void add_arg(Expression* expr){
@@ -55,6 +67,15 @@ class Custom_Function_Expression: public Function_Expression
     private: 
         Expression* expression;
         const char* var_args[Function_Expression::max_size]={"1","2","3","4","5","6", "7","8","9","10"};
+    protected:
+        void clean() override 
+        {
+            if(expression)
+            {
+                delete expression;
+                expression = nullptr;
+            }
+        }
     public:
         Custom_Function_Expression(const char* id, Expression* func): Function_Expression(id), expression(func){
             func = nullptr;
