@@ -18,4 +18,4 @@ using namespace std;
 /// @brief Check if the text is whitespace only or empty string
 /// @param text The text to check
 /// @return true if the text is whitespace or empty, false otherwise
-bool is_whitespace_or_empty(const string& text);
+bool is_whitespace_or_empty_string(const string& text);

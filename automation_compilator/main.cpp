@@ -1,5 +1,6 @@
 #include "parser.hpp"
 #include "automation.hpp"
+#include "automation_test.hpp"
 #include <iostream>
 
 using namespace std;

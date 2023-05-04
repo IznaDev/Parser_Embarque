@@ -41,7 +41,7 @@ long Modulo_Expression::evaluate(const DataContext* dc) const
 {
     if(left_member && right_member)
     {
-         int div = right_member->evaluate(dc);
+        long div = right_member->evaluate(dc);
         return left_member->evaluate(dc)% (div == 0 ? 1 : div);
     }
     return 0;

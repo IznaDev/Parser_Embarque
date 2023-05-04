@@ -2,33 +2,41 @@
 
 long Max_Function_Expression::evaluate(const DataContext* dc) const
 {
-    vector<long> values;
-    transform(begin(args), end(args), back_inserter(values),[dc](const unique_ptr<Expression>& expr){return expr->evaluate(dc);});
-    long default_val = values.empty()? 0 : values[0];
-    long result = accumulate(begin(values), end(values), default_val, [](long val_1, long val_2){return max(val_1, val_2);});
-    return result;
-    return 0;
+    long max_val = last_index == 0? 0 : args[0]->evaluate(dc);
+    for(int i=1;i<last_index;i++)
+    {
+        long val = args[i]->evaluate(dc);
+        if(val > max_val)
+        {
+            max_val = val;
+        }
+    }
+    return max_val;
 }
 
 long Min_Function_Expression::evaluate(const DataContext* dc) const
 {
-    vector<long> values;
-    transform(begin(args), end(args), back_inserter(values),[dc](const unique_ptr<Expression>& expr){return expr->evaluate(dc);});
-    long default_val = values.empty()? 0 : values[0];
-    long result = accumulate(begin(values), end(values), default_val, [](long val_1, long val_2){return min(val_1, val_2);});
-    return result;
-    return 0;
+    long min_val = last_index == 0? 0 : args[0]->evaluate(dc);
+    for(int i=1;i<last_index;i++)
+    {
+        long val = args[i]->evaluate(dc);
+        if(val < min_val)
+        {
+            min_val = val;
+        }
+    }
+    return min_val;
 }
 
 long Pow_Function_Expression::evaluate(const DataContext* dc) const
 {
-    if(args.size()>=2)
+    if(last_index>=2)
     {
         long x = args[0]->evaluate(dc);
         long y = args[1]->evaluate(dc);
         return pow(x,y);
     }
-    else if(args.size()==1)
+    else if(last_index==1)
     {
         return args[0]->evaluate(dc);
     }
@@ -37,7 +45,7 @@ long Pow_Function_Expression::evaluate(const DataContext* dc) const
 
 long Sqrt_Function_Expression::evaluate(const DataContext* dc) const
 {
-    if(args.size()>=1)
+    if(last_index>=1)
     {
         long x = args[0]->evaluate(dc);
         return sqrt(x);
@@ -58,9 +66,9 @@ long Custom_Function_Expression::evaluate(const DataContext* dc) const
             mdc.add_or_set(key, dc->evaluate(key));
         }
     }
-    for(const auto& a: args)
+    for(int i=0;i<last_index;i++)
     {
-        mdc.add_or_set(std::to_string(i++).c_str(), a->evaluate(dc));
+        mdc.add_or_set(var_args[i], args[i]->evaluate(dc));
     }
     return expression->evaluate(&mdc);
 }

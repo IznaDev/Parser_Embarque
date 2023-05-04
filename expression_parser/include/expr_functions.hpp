@@ -1,30 +1,20 @@
 #include "expression.hpp"
+#include <math.h>
 
 class Function_Expression: public Expression
 {
     protected:
-        string id;
-        vector<unique_ptr<Expression>> args;
+        static const int max_size=256;
+        const char* id;
+        int last_index{0};
+        Expression* args[Function_Expression::max_size];
     public:
-        Function_Expression(const string& id): id(id){};
-        void add_arg(unique_ptr<Expression>&& expr){
-            args.push_back(move(expr));
-        }
-
-        string to_string() const override 
-        { 
-            ostringstream s;
-            s << id << "(";
-            for(int i=0;i<args.size();i++)
+        Function_Expression(const char* id): id(id){};
+        void add_arg(Expression* expr){
+            if(last_index<Function_Expression::max_size)
             {
-                s << args[i]->to_string();
-                if(i<args.size()-1)
-                {
-                    s << ",";
-                }
+                args[last_index++] = expr;
             }
-            s << ")";
-            return s.str();
         }
 };
 
@@ -63,8 +53,11 @@ class Sqrt_Function_Expression: public Function_Expression
 class Custom_Function_Expression: public Function_Expression
 {
     private: 
-        unique_ptr<Expression> expression;
+        Expression* expression;
+        const char* var_args[Function_Expression::max_size]={"1","2","3","4","5","6", "7","8","9","10"};
     public:
-        Custom_Function_Expression(const string& id, unique_ptr<Expression>&& func): Function_Expression(id), expression(move(func)){}
+        Custom_Function_Expression(const char* id, Expression* func): Function_Expression(id), expression(func){
+            func = nullptr;
+        }
         long evaluate(const DataContext* dc) const override;
 };

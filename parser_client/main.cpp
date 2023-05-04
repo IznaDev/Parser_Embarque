@@ -51,7 +51,6 @@ int main()
                 {
                     parse_result.expression->update(&dc);
                 }
-                cout << parse_result.expression->to_string() << endl;
                 cout << expression << " = " << result << endl;
             }
             else

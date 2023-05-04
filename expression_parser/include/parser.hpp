@@ -20,7 +20,7 @@ using namespace std;
 
 struct Parse_Result
 {
-    unique_ptr<Expression> expression{nullptr};
+    Expression* expression{nullptr};
     string error_message{""};
     operator bool() const {if(expression){return true;} return false;};
 };
@@ -28,15 +28,15 @@ struct Parse_Result
 class Expression_Parser
 {
     private:
-        map<string, function<unique_ptr<Operation_Expression>()>> operation_factory;
-        map<string, function<unique_ptr<Function_Expression>()>> function_factory;
+        map<string, function<Operation_Expression*()>> operation_factory;
+        map<string, function<Function_Expression*()>> function_factory;
         Validation_Result validate(const string& expression) const noexcept;
         bool is_id(vector<string>& supported_operators, istringstream& stream, string& first_char) const;
         Parse_Result parse(istringstream& stream) const noexcept;
         vector<string> getSupportedOperatorsReg() const;
         string get_ops_regex_string(const string& expr) const;
         string get_func_regex_string(const string& expr) const;
-        unique_ptr<Operation_Expression> build_operation(const string& id) const {return operation_factory.at(id)();}
+        Operation_Expression* build_operation(const string& id) const {return operation_factory.at(id)();}
         Parse_Result build_function(const string& id, istringstream& s) const noexcept;
         unique_ptr<ValidationHandler> validator;
     public:
