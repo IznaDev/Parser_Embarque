@@ -24,6 +24,22 @@
                     "type": {
                         "description": "Nom de l'élément",
                         "type": "string"
+                    },
+                    "inputs": {
+                        "description": "L'élement envoie des données",
+                        "type": "array",
+                        "items": {
+                            "description": "Valeur de l'input",
+                            "type": "string"
+                        }
+                    },
+                    "outputs": {
+                        "description": "L'élement reçoit des données",
+                        "type": "array",
+                        "items": {
+                            "description": "Valeur de l'output",
+                            "type": "string"
+                        }
                     }
                 },
                 "required": ["id", "type"]
