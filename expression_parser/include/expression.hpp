@@ -18,6 +18,7 @@ class Expression
         virtual Expression* simplify() = 0;
         virtual bool has_variable() = 0;
         virtual bool is_leaf() = 0;
+        virtual const char* to_cstr(){ return "Expression";}
 };
 
 class Constant_Expression: public Expression

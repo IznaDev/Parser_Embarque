@@ -8,7 +8,7 @@ FetchContent_MakeAvailable(json)
 
 add_executable(${comp_name} main.cpp
     src/code_builder.cpp
-    src/test_code_builder.cpp)
+    src/arduino_code_builder.cpp)
 
 target_include_directories(${comp_name} PUBLIC 
     ${CMAKE_CURRENT_SOURCE_DIR}/include

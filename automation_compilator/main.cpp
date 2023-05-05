@@ -1,7 +1,7 @@
 #include "parser.hpp"
 #include "arduino_context.hpp"
 #include "automation_test.hpp"
-#include "test_code_builder.hpp"
+#include "arduino_code_builder.hpp"
 
 
 int main(int argc, char* argv[])
@@ -43,8 +43,8 @@ int main(int argc, char* argv[])
     TestFactory factory;
     // A faire pour chaque device du json
 
-    const char* id = "test_2";
-    const char* type = "testinputoutput";
+    const char* id = "sensor_1";
+    const char* type = "testinput";
     Device_Type d_type = factory.get_device_type(type);
     DeviceDataContext dc;
     if(d_type!=Device_Type::INVALID)
@@ -53,29 +53,22 @@ int main(int argc, char* argv[])
         s.add_config("pin", 10);
         s.add_config("val_init",4);
         s.add_input("val");
+        s.add_input("val2");
+        s.add_input("intensite");
         dc.add_or_set_device(&factory, id, type, s);
     }
     dc.setup();
     Expression_Parser parser;
-    auto result = parser.parse("${sensor_1.val}");
-    auto result_if = parser.parse("${sensor_1.value} <= 0");
-    auto result_then = parser.parse("${sensor_1.val} += 3");
-    auto result_else = parser.parse("${sensor_1.val} -=2");
-    if(result && result_if && result_then && result_else)
+    auto result = parser.parse("${sensor_1.intensite}");
+    auto result2 = parser.parse("${sensor_1.val2}");
+    auto result3 = parser.parse("${sensor_1.toto}");
+    if(result && result2 && result3)
     {
         for(int i=0;i<10;i++)
         {
-            cout << "Device value: " << result.expression->evaluate(&dc) << endl;
-            long if_val = result_if.expression->evaluate(&dc);
-            cout << "If ${sensor_1.value} <= 0: " << if_val << endl;
-            if(if_val)
-            {
-                result_then.expression->update(&dc);
-            }
-            else
-            {
-                result_else.expression->update(&dc);
-            }
+            cout << "result: " << result.expression->evaluate(&dc) << endl;
+            cout << "result2: " << result2.expression->evaluate(&dc) << endl;
+            cout << "result3: " << result3.expression->evaluate(&dc) << endl;
         }
         
     }

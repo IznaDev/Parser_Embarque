@@ -83,13 +83,12 @@ class DeviceDataContext : public DataContext
             if(ref)
             {
                 strcpy(device_id, ref);
-                ref = strtok(ref, ".");
+                ref = strtok(NULL, ".");
                 if(ref)
                 {
                     strcpy(value_id, ref);
                 }
             }
-            delete ref;
         }
     public:
         DeviceDataContext(){}

@@ -20,6 +20,7 @@ class LessThan_Expression: public Binary_Operation_Expression
     public:
         LessThan_Expression(): Binary_Operation_Expression("<", -9){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "LessThan_Expression";}
 };
 
 class LessThanEqual_Expression: public Binary_Operation_Expression
@@ -27,6 +28,7 @@ class LessThanEqual_Expression: public Binary_Operation_Expression
     public:
         LessThanEqual_Expression(): Binary_Operation_Expression("<=", -9){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "LessThanEqual_Expression";}
 };
 
 class GreaterThan_Expression: public Binary_Operation_Expression
@@ -34,6 +36,7 @@ class GreaterThan_Expression: public Binary_Operation_Expression
     public:
         GreaterThan_Expression(): Binary_Operation_Expression(">", -9){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "GreaterThan_Expression";}
 };
 
 class GreaterThanEqual_Expression: public Binary_Operation_Expression
@@ -41,6 +44,7 @@ class GreaterThanEqual_Expression: public Binary_Operation_Expression
     public:
         GreaterThanEqual_Expression(): Binary_Operation_Expression(">=", -9){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "GreaterThanEqual_Expression";}
 };
 
 class And_Expression: public Binary_Operation_Expression
@@ -48,6 +52,7 @@ class And_Expression: public Binary_Operation_Expression
     public:
         And_Expression(): Binary_Operation_Expression("and", -14){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "And_Expression";}
 };
 
 class Or_Expression: public Binary_Operation_Expression
@@ -55,6 +60,7 @@ class Or_Expression: public Binary_Operation_Expression
     public:
         Or_Expression(): Binary_Operation_Expression("or", -15){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override {return "Or_Expression";}
 };
 
 class Not_Expression: public Unary_Operation_Expression

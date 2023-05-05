@@ -11,7 +11,7 @@ class HCSR501 : public virtual IInput
                 return settings.is_input() && settings.get_config().exists("pin");
             }
         
-        bool init() override
+        bool setup() override
             {
                 //pinMode(pin,INPUT_DEVICE);
                 

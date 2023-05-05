@@ -2,6 +2,7 @@
 
 #include "code_builder.hpp"
 #include <set>
+#include <algorithm>
 
 class TestCodeBuilder : public ICodeBuilder
 {

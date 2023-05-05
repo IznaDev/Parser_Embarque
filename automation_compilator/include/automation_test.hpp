@@ -23,7 +23,14 @@ class TestInputDevice: public virtual IInput
 
         long get_value(const char* value_id) const override
         {
-          return rand()%10;
+            int value_index = settings.get_inputs().at_or_default(value_id, -1);
+            switch(value_index)
+            {
+                case 0: return 5;
+                case 1: return 3;
+                case 2: return 32;
+                default: return rand()%10;
+            }
         }
 };
 

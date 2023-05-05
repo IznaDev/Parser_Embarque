@@ -15,7 +15,7 @@ class LED : public virtual IOutput
                 return settings.is_input() && settings.get_config().exists("pin");
             }
         
-        bool init() override
+        bool setup() override
             {
                 //pinMode(pin,OUTPUT_DEVICE);
                 
@@ -24,21 +24,18 @@ class LED : public virtual IOutput
 
          bool set_value(const char* value_id, long value) override
          {
-              int id = atoi(value_id);
-              //digitalWrite(id,value);
+              //digitalWrite(pin,value);
               return true;
          }
 
          bool increase_value(const char* value_id, long value) override
          {
-            int id = atoi(value_id);
-            //digitalWrite(id,value);
+            //digitalWrite(pin,value);
             return true;
          }
          bool decrease_value(const char* value_id, long value) override
          {
-            int id = atoi(value_id);
-            //digitalWrite(id,value);
+            //digitalWrite(pin,value);
             return true;
          }
 
