@@ -1,23 +1,27 @@
 #include "parser.hpp"
-#include "automation.hpp"
+#include "arduino_context.hpp"
 #include "automation_test.hpp"
-#include <iostream>
+#include "arduino_code_builder.hpp"
 
-#define SCHEMA_PATH "../automation_compilator/schema/schema.json"
-
-using namespace std;
 
 int main(int argc, char* argv[])
 {
-    if(argc > 2)
+    cout << "argv[1]" << argv[1] << endl;
+    if(argc < 2)
     {
-        cout << "Trop d'arguments ! " << endl;
-        return EXIT_FAILURE;
+        cout << "Please provide a .json file_path in argument" << endl;
+        return 0;
     }
-
-    string filepath = argv[1];
-
-    //std::string json = "{...}";
+    string file_path(argv[1]);
+    ifstream file(file_path);
+    if(!file.good())
+    {
+        cout << "Provided file: '" << file_path << "'" << "doesn't exist" << endl;
+        return 0;
+    }
+    json json = json::parse(file);
+    TestCodeBuilder builder;
+    builder.build(json);
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
     //3. Générer le code qui décrit les settings
@@ -36,12 +40,12 @@ int main(int argc, char* argv[])
     } */
     // doit donner
     
-    IDeviceFactory* factory = Automation::getFactory("test");
+    TestFactory factory;
     // A faire pour chaque device du json
 
-    const char* id = "test_2";
-    const char* type = "testinputoutput";
-    Device_Type d_type = factory->get_device_type(type);
+    const char* id = "sensor_1";
+    const char* type = "testinput";
+    Device_Type d_type = factory.get_device_type(type);
     DeviceDataContext dc;
     if(d_type!=Device_Type::INVALID)
     {
@@ -49,30 +53,22 @@ int main(int argc, char* argv[])
         s.add_config("pin", 10);
         s.add_config("val_init",4);
         s.add_input("val");
-        dc.add_or_set_device(factory, id, type, s);
+        s.add_input("val2");
+        s.add_input("intensite");
+        dc.add_or_set_device(&factory, id, type, s);
     }
-    dc.init();   
-
+    dc.setup();
     Expression_Parser parser;
-    auto result = parser.parse("${test_2.val}");
-    auto result_if = parser.parse("${test_2.value} <= 0");
-    auto result_then = parser.parse("${test_2.val} += 3");
-    auto result_else = parser.parse("${test_2.val} -=2");
-    if(result && result_if && result_then && result_else)
+    auto result = parser.parse("${sensor_1.intensite}");
+    auto result2 = parser.parse("${sensor_1.val2}");
+    auto result3 = parser.parse("${sensor_1.toto}");
+    if(result && result2 && result3)
     {
         for(int i=0;i<10;i++)
         {
-            cout << "Device value: " << result.expression->evaluate(&dc) << endl;
-            long if_val = result_if.expression->evaluate(&dc);
-            cout << "If ${test_2.value} <= 0: " << if_val << endl;
-            if(if_val)
-            {
-                result_then.expression->update(&dc);
-            }
-            else
-            {
-                result_else.expression->update(&dc);
-            }
+            cout << "result: " << result.expression->evaluate(&dc) << endl;
+            cout << "result2: " << result2.expression->evaluate(&dc) << endl;
+            cout << "result3: " << result3.expression->evaluate(&dc) << endl;
         }
         
     }

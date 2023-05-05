@@ -3,7 +3,6 @@
 #include "automation.hpp"
 #include <random>
 #include <iostream>
-#include "code_builder.hpp"
 
 using namespace std;
 
@@ -16,7 +15,7 @@ class TestInputDevice: public virtual IInput
             return settings.is_input() && settings.get_config().exists("pin");
         }
 
-        bool init() override
+        bool setup() override
         {
             cout << get_id() << " initialisé avec le settings 'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl;
             return true;
@@ -24,7 +23,14 @@ class TestInputDevice: public virtual IInput
 
         long get_value(const char* value_id) const override
         {
-          return rand()%10;
+            int value_index = settings.get_inputs().at_or_default(value_id, -1);
+            switch(value_index)
+            {
+                case 0: return 5;
+                case 1: return 3;
+                case 2: return 32;
+                default: return rand()%10;
+            }
         }
 };
 
@@ -39,7 +45,7 @@ class TestOutputDevice: public virtual IOutput
             return settings.is_output() && settings.get_config().exists("pin");
         }
 
-        bool init() override
+        bool setup() override
         {
             cout << get_id() << " initialisé avec le settings 'pin' qui vaut " << settings.get_config().at_or_default("pin", -1) << endl;
             return true;
@@ -73,7 +79,7 @@ class TestInputOutputDevice: public virtual IInputOutput
             return settings.is_input() && settings.is_output() && settings.get_config().exists("pin") && settings.get_config().exists("val_init");
         }
 
-        bool init() override
+        bool setup() override
         {
             value = settings.get_config().at_or_default("val_init", 5);
             cout << get_id() << " initialisé avec:" << endl <<\
@@ -104,7 +110,7 @@ class TestInputOutputDevice: public virtual IInputOutput
         }
 };
 
-class TestDefaultFactory: public IDeviceFactory
+class TestFactory: public IDeviceFactory
 {
     public:
         virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) const override
@@ -135,19 +141,4 @@ class TestDefaultFactory: public IDeviceFactory
             }
             else return Device_Type::INVALID;
         }
-};
-
-namespace Automation
-{
-    static IDeviceFactory* getFactory(const char* target)
-    {
-        return new TestDefaultFactory();
-    }
-}
-
-class TestCodeBuilder
-{
-    public:
-        TestCodeBuilder(){}
-        void build(string json);
 };

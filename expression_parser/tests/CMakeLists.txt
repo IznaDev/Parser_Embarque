@@ -30,7 +30,8 @@ add_executable(${test_app_name} model/addition.test.cpp
   model/shift.test.cpp
   model/functions.test.cpp
   model/bitwise_logical.test.cpp
-  model/affectation.test.cpp)
+  model/affectation.test.cpp
+  model/simplify.test.cpp)
 
 target_link_libraries(${test_app_name} PUBLIC ${app_name} GTest::gtest_main)
 

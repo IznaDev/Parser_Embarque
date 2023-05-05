@@ -76,7 +76,7 @@
     },
     "cmake.debugConfig": {
         "args": [
-            "--gtest_filter=*"
+            "../../automation_compilator/ressources/exemple_config.json"
         ]
     }
 }

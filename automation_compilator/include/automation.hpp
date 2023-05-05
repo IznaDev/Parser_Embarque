@@ -38,7 +38,7 @@ class IDevice
         const char* get_id() const {return id;}
         const char* get_type() const {return type;}
         virtual bool are_settings_valid() const = 0;
-        virtual bool init() = 0;
+        virtual bool setup() = 0;
 };
 
 class IInput: public virtual IDevice
@@ -83,13 +83,12 @@ class DeviceDataContext : public DataContext
             if(ref)
             {
                 strcpy(device_id, ref);
-                ref = strtok(ref, ".");
+                ref = strtok(NULL, ".");
                 if(ref)
                 {
                     strcpy(value_id, ref);
                 }
             }
-            delete ref;
         }
     public:
         DeviceDataContext(){}
@@ -243,7 +242,7 @@ class DeviceDataContext : public DataContext
                 default: break;
             }
         }
-        bool init()
+        bool setup()
         {
             bool result=true;
             for(int i=0;i<inputs.size();i++)
@@ -251,16 +250,44 @@ class DeviceDataContext : public DataContext
                 const char* key= inputs.get_key(i);
                 if(!outputs.exists(key))
                 {
-                    result = inputs[key]->init() && result;
+                    result = inputs[key]->setup() && result;
                 }
             }
             for(int i=0;i<outputs.size();i++)
             {
                 const char* key= outputs.get_key(i);
-                result = outputs[key]->init() && result;
+                result = outputs[key]->setup() && result;
             }
 
             return result;
         }
         
+};
+
+class Behavior
+{
+    private:
+        Expression* if_expr{nullptr};
+        Expression* then_expr{nullptr};
+        Expression* else_expr{nullptr};
+    public:
+        Behavior(Expression* if_expr, Expression* then_expr, Expression* else_expr = nullptr):
+            if_expr(if_expr), then_expr(then_expr), else_expr(else_expr){}
+        void process(DeviceDataContext* dc)
+        {
+            if(if_expr && if_expr->evaluate(dc))
+            {
+                if(then_expr)
+                {
+                    then_expr->update(dc);
+                }
+            }
+            else
+            {
+                if(else_expr)
+                {
+                    else_expr->update(dc);
+                };
+            }
+        }
 };

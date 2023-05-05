@@ -29,6 +29,42 @@ class Function_Expression: public Expression
                 args[last_index++] = expr;
             }
         }
+        Expression* simplify() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i])
+                {
+                    if(!args[i]->is_leaf())
+                    {
+                        Expression* expr = args[i]->simplify();
+                        if(expr != args[i])
+                        {
+                            delete args[i];
+                            args[i] = expr;
+                        }
+                    }
+                }
+            }
+            if(!has_variable())
+            {
+                return new Constant_Expression(this->evaluate());
+            }
+            return this;
+        }
+        virtual bool has_variable() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i] && args[i]->has_variable())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        virtual bool is_leaf() override {return false;}
 };
 
 class Max_Function_Expression: public Function_Expression

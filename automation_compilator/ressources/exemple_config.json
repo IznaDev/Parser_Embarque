@@ -1,0 +1,44 @@
+{
+    "target":"arduino",
+    "devices":[
+        {
+            "id":"presence_1",
+            "type":"HC-SR501",
+            "config":
+            {
+                "pin":15
+            },
+            "inputs":["detection"]
+        },
+        {
+            "id":"presence_2",
+            "type":"HC-SR501",
+            "config":
+            {
+                "pin":15
+            },
+            "inputs":["detection"]
+        },
+        {
+            "id":"lampe_1",
+            "type":"LED",
+            "config":
+            {
+                "pin":10
+            },
+            "outputs":["intensite"]
+        }
+    ],
+    "behaviors":[
+        {
+            "if":"${presence_1.detection} > 0",
+            "then": "${lampe_1.intensite} = 255",
+            "else": "${lampe_1.intensite} = 0"
+        },
+        {
+            "if":"${presence_2.detection} < 0",
+            "then": "${lampe_1.intensite} = 255",
+            "else": "${lampe_1.intensite} = 0"
+        }
+    ]
+}

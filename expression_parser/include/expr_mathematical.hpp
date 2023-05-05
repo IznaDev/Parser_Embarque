@@ -8,6 +8,7 @@ class Addition_Expression: public Binary_Operation_Expression
         Addition_Expression(): Binary_Operation_Expression("+", -6), reg_id("\\+"){}
         long evaluate(const DataContext* dc) const override;
         const char* get_reg_id() const override {return reg_id;}
+        const char* to_cstr() override { return "Addition_Expression";}
 };
 
 class Substraction_Expression: public Binary_Operation_Expression
@@ -15,6 +16,7 @@ class Substraction_Expression: public Binary_Operation_Expression
     public:
         Substraction_Expression(): Binary_Operation_Expression("-", -6){}
         long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() override { return "Substraction_Expression";}
 };
 
 class Multiplication_Expression: public Binary_Operation_Expression
