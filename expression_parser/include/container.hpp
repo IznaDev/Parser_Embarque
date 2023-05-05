@@ -1,5 +1,5 @@
 #pragma once
-#include <cstring>
+#include <string.h>
 
 template<typename key_T = const char *, typename value_T = long>
 struct Pair

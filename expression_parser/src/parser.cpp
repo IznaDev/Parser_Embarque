@@ -2,33 +2,33 @@
 
 Expression_Parser::Expression_Parser()
 {
-    operation_factory.insert({"+", [](){return make_unique<Addition_Expression>();}});
-    operation_factory.insert({"-", [](){return make_unique<Substraction_Expression>();}});
-    operation_factory.insert({"*", [](){return make_unique<Multiplication_Expression>();}});
-    operation_factory.insert({"/", [](){return make_unique<Division_Expression>();}});
-    operation_factory.insert({"%", [](){return make_unique<Modulo_Expression>();}});
-    operation_factory.insert({"==", [](){return make_unique<Equals_Expression>();}});
-    operation_factory.insert({"<", [](){return make_unique<LessThan_Expression>();}});
-    operation_factory.insert({"<=", [](){return make_unique<LessThanEqual_Expression>();}});
-    operation_factory.insert({">", [](){return make_unique<GreaterThan_Expression>();}});
-    operation_factory.insert({">=", [](){return make_unique<GreaterThanEqual_Expression>();}});
-    operation_factory.insert({"!=", [](){return make_unique<NotEquals_Expression>();}});
-    operation_factory.insert({"and", [](){return make_unique<And_Expression>();}});
-    operation_factory.insert({"or", [](){return make_unique<Or_Expression>();}});
-    operation_factory.insert({"!", [](){return make_unique<Not_Expression>();}});
-    operation_factory.insert({"^", [](){return make_unique<XOR_Bitwise_Expression>();}});
-    operation_factory.insert({"&", [](){return make_unique<And_Bitwise_Expression>();}});
-    operation_factory.insert({"|", [](){return make_unique<Or_Bitwise_Expression>();}});
-    operation_factory.insert({"<<", [](){return make_unique<Shift_Left_Expression>();}});
-    operation_factory.insert({">>", [](){return make_unique<Shift_Right_Expression>();}});
-    operation_factory.insert({"=", [](){return make_unique<Set_Expression>();}});
-    operation_factory.insert({"+=", [](){return make_unique<Increase_Expression>();}});
-    operation_factory.insert({"-=", [](){return make_unique<Decrease_Expression>();}});
+    operation_factory.insert({"+", [](){return new Addition_Expression();}});
+    operation_factory.insert({"-", [](){return new Substraction_Expression();}});
+    operation_factory.insert({"*", [](){return new Multiplication_Expression();}});
+    operation_factory.insert({"/", [](){return new Division_Expression();}});
+    operation_factory.insert({"%", [](){return new Modulo_Expression();}});
+    operation_factory.insert({"==", [](){return new Equals_Expression();}});
+    operation_factory.insert({"<", [](){return new LessThan_Expression();}});
+    operation_factory.insert({"<=", [](){return new LessThanEqual_Expression();}});
+    operation_factory.insert({">", [](){return new GreaterThan_Expression();}});
+    operation_factory.insert({">=", [](){return new GreaterThanEqual_Expression();}});
+    operation_factory.insert({"!=", [](){return new NotEquals_Expression();}});
+    operation_factory.insert({"and", [](){return new And_Expression();}});
+    operation_factory.insert({"or", [](){return new Or_Expression();}});
+    operation_factory.insert({"!", [](){return new Not_Expression();}});
+    operation_factory.insert({"^", [](){return new XOR_Bitwise_Expression();}});
+    operation_factory.insert({"&", [](){return new And_Bitwise_Expression();}});
+    operation_factory.insert({"|", [](){return new Or_Bitwise_Expression();}});
+    operation_factory.insert({"<<", [](){return new Shift_Left_Expression();}});
+    operation_factory.insert({">>", [](){return new Shift_Right_Expression();}});
+    operation_factory.insert({"=", [](){return new Set_Expression();}});
+    operation_factory.insert({"+=", [](){return new Increase_Expression();}});
+    operation_factory.insert({"-=", [](){return new Decrease_Expression();}});
 
-    function_factory.insert({"max", [](){return make_unique<Max_Function_Expression>();}});
-    function_factory.insert({"min", [](){return make_unique<Min_Function_Expression>();}});
-    function_factory.insert({"pow", [](){return make_unique<Pow_Function_Expression>();}});
-    function_factory.insert({"sqrt", [](){return make_unique<Sqrt_Function_Expression>();}});
+    function_factory.insert({"max", [](){return new Max_Function_Expression();}});
+    function_factory.insert({"min", [](){return new Min_Function_Expression();}});
+    function_factory.insert({"pow", [](){return new Pow_Function_Expression();}});
+    function_factory.insert({"sqrt", [](){return new Sqrt_Function_Expression();}});
 
     validator = make_unique<EmptyValidationHandler>();
     auto v2 = make_unique<ParenthesisValidationHandler>();
@@ -40,22 +40,18 @@ Expression_Parser::Expression_Parser()
     
 }
 
-void add_member(unique_ptr<Operation_Expression>& expr, unique_ptr<Expression>& member, unique_ptr<Reference_Expression>& ref_member, bool is_left_member)
+void add_member(Operation_Expression* expr, Expression* member, Reference_Expression* ref_member, bool is_left_member)
 {
     if(expr->can_add_member() && (!is_left_member || expr->has_left_member()))
     {
         if(ref_member)
         {
-            expr->add_ref_member(move(ref_member));
+            expr->add_ref_member(ref_member);
         }
         else
         {
-            expr->add_member(move(member));
+            expr->add_member(member);
         }
-    }
-    else
-    {
-        member = nullptr;
     }
 }
 
@@ -126,7 +122,7 @@ Validation_Result ExpressionValidationHandler::validate(const string& expr) cons
     regex re(splitters.str());
     sregex_token_iterator first{expr_without_funcs.begin(), expr_without_funcs.end(), re, -1}, last;
     vector<std::string> tokens{first, last};
-    tokens.erase(remove_if(begin(tokens),end(tokens), is_whitespace_or_empty), end(tokens));
+    tokens.erase(remove_if(begin(tokens),end(tokens), is_whitespace_or_empty_string), end(tokens));
     if(tokens.size()>1)
     {
         regex end_with_operation("^[\\d" + r_ops+ "]*"+r_ops+"$", regex_constants::icase);
@@ -237,13 +233,13 @@ vector<string> Expression_Parser::getSupportedOperatorsReg() const
     return result;
 }
 
-void unstack_operations(stack<unique_ptr<Operation_Expression>>& ops)
+void unstack_operations(stack<Operation_Expression*>& ops)
 {
-    unique_ptr<Expression> member{nullptr};
-    unique_ptr<Reference_Expression> ref_member{nullptr};
+    Expression* member{nullptr};
+    Reference_Expression* ref_member{nullptr};
     while(ops.size()>1)
     {
-        member = move(ops.top());
+        member = ops.top();
         ops.pop();
         add_member(ops.top(), member, ref_member, false);
     }
@@ -411,7 +407,7 @@ Parse_Result Expression_Parser::build_function(const string& id, istringstream& 
         auto p = parse(s);
         if(p)
         {
-            function->add_arg(move(p.expression));
+            function->add_arg(p.expression);
             nb_args--;
         }
         else
@@ -421,7 +417,7 @@ Parse_Result Expression_Parser::build_function(const string& id, istringstream& 
         }
         
     }
-    result.expression = move(function);
+    result.expression = function;
     return result;
 }
 
@@ -429,10 +425,10 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
 {
     Parse_Result result;
     ostringstream word{""s};
-    unique_ptr<Operation_Expression> current{nullptr};
-    unique_ptr<Expression> member{nullptr};
-    unique_ptr<Reference_Expression> ref_member{nullptr};
-    stack<unique_ptr<Operation_Expression>> ops;
+    Operation_Expression* current{nullptr};
+    Expression* member{nullptr};
+    Reference_Expression* ref_member{nullptr};
+    stack<Operation_Expression*> ops;
     vector<string> supportedOperators = getSupportedOperators();
     vector<string> supportedFunctions = getSupportedFunctions();
     char c;
@@ -451,7 +447,8 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                 // If conversion suceed store as a member
                 if(p)
                 {
-                    member = move(p.expression);
+                    member = p.expression;
+                    p.expression = nullptr;
                 }
                 // Else return error message
                 else
@@ -464,7 +461,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
             }
             else if(is_reference_id(s, id))
             {
-                ref_member = make_unique<Reference_Expression>(id);
+                ref_member = new Reference_Expression(id.c_str());
                 continue;
             }
             else if(is_id(supportedFunctions, s, id))
@@ -472,7 +469,8 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                 auto p = build_function(id, s);
                 if(p)
                 {
-                    member = move(p.expression);
+                    member = p.expression;
+                    p.expression = nullptr;
                     continue;
                 }
                 else
@@ -489,7 +487,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                 string constant = word.str();
                 if(!member && !ref_member)
                 {
-                    member = make_unique<Constant_Expression>(constant);
+                    member = new Constant_Expression(constant.c_str());
                 }
                 // Word is cleared
                 word.str("");
@@ -516,7 +514,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                             unstack_operations(ops);
                         }
                         // There is one (after unstack) or more operations
-                        member = move(ops.top());
+                        member = ops.top();
                         // Previous operation is merged to the current
                         add_member(current, member, ref_member, true);
                         ops.pop(); 
@@ -527,6 +525,8 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
                     // Member is added to current operation
                     add_member(current, member, ref_member, true);
                 }
+                member = nullptr;
+                ref_member = nullptr;
                 // Current operation is added to the stack
                 ops.push(move(current));
             }
@@ -540,7 +540,7 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
         string constant = word.str();
         if(!member && !ref_member)
         {
-            member = make_unique<Constant_Expression>(constant);
+            member = new Constant_Expression(constant.c_str());
         }
     }
     catch(const std::exception& e)
@@ -554,10 +554,12 @@ Parse_Result Expression_Parser::parse(istringstream& s) const noexcept
     {
         //Last member is added to last operation
         add_member(ops.top(), member, ref_member, false);
+        member = nullptr;
+        ref_member = nullptr;
         // Previous operations are merged   
         unstack_operations(ops);
         // The result contains the top operation
-        result.expression = move(ops.top());
+        result.expression = ops.top();
         ops.pop();
     }
     else
@@ -583,7 +585,7 @@ Validation_Result Expression_Parser::add_customFunction(const string& id, const 
     {
         function_factory.insert({id, [id, expression,this](){
             auto p = this->parse(expression);
-            return make_unique<Custom_Function_Expression>(id, move(p.expression));}});
+            return new Custom_Function_Expression(id.c_str(), p.expression);}});
         return Validation_Result();
     }
 

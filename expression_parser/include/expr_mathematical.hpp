@@ -1,13 +1,13 @@
 #pragma once
-
 #include "expression.hpp"
 
 class Addition_Expression: public Binary_Operation_Expression
 {
+    const char* reg_id;
     public:
-        Addition_Expression(): Binary_Operation_Expression("+", -6){}
+        Addition_Expression(): Binary_Operation_Expression("+", -6), reg_id("\\+"){}
         long evaluate(const DataContext* dc) const override;
-        string get_reg_id() const override {return "\\"+id;}
+        const char* get_reg_id() const override {return reg_id;}
 };
 
 class Substraction_Expression: public Binary_Operation_Expression
@@ -19,10 +19,11 @@ class Substraction_Expression: public Binary_Operation_Expression
 
 class Multiplication_Expression: public Binary_Operation_Expression
 {
+    const char* reg_id;
     public:
-        Multiplication_Expression(): Binary_Operation_Expression("*", -5){}
+        Multiplication_Expression(): Binary_Operation_Expression("*", -5), reg_id("\\*"){}
         long evaluate(const DataContext* dc) const override;
-        string get_reg_id() const override {return "\\"+id;}
+        const char* get_reg_id() const override {return reg_id;}
 };
 
 class Division_Expression: public Binary_Operation_Expression

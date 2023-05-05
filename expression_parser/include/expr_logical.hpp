@@ -1,5 +1,5 @@
+#pragma once
 #include "expression.hpp"
-
 
 class Equals_Expression: public Binary_Operation_Expression
 {
@@ -80,10 +80,11 @@ class Shift_Right_Expression: public Binary_Operation_Expression
 
 class XOR_Bitwise_Expression: public Binary_Operation_Expression
 {
+    const char* reg_id;
     public:
-        XOR_Bitwise_Expression(): Binary_Operation_Expression("^", -12){}
+        XOR_Bitwise_Expression(): Binary_Operation_Expression("^", -12), reg_id("\\^"){}
         long evaluate(const DataContext* dc) const override;
-        string get_reg_id() const override {return "\\"+id;}
+        const char* get_reg_id() const override {return reg_id;}
 };
 
 class And_Bitwise_Expression: public Binary_Operation_Expression
@@ -95,8 +96,9 @@ class And_Bitwise_Expression: public Binary_Operation_Expression
 
 class Or_Bitwise_Expression: public Binary_Operation_Expression
 {
+    const char* reg_id;
     public:
-        Or_Bitwise_Expression(): Binary_Operation_Expression("|", -13){}
+        Or_Bitwise_Expression(): Binary_Operation_Expression("|", -13), reg_id("\\|"){}
         long evaluate(const DataContext* dc) const override;
-        string get_reg_id() const override {return "\\"+id;}
+        const char* get_reg_id() const override {return reg_id;}
 };

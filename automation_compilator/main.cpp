@@ -1,6 +1,6 @@
 #include "parser.hpp"
 #include "automation.hpp"
-#include "include/validator.hpp"
+#include "automation_test.hpp"
 #include <iostream>
 
 #define SCHEMA_PATH "../automation_compilator/schema/schema.json"
@@ -44,8 +44,7 @@ int main(int argc, char* argv[])
             "outputs":["val"]
     } */
     // doit donner
-
-    /*
+    
     IDeviceFactory* factory = Automation::getFactory("test");
     // A faire pour chaque device du json
 
@@ -55,17 +54,10 @@ int main(int argc, char* argv[])
     DeviceDataContext dc;
     if(d_type!=Device_Type::INVALID)
     {
-        Dictionary<const char*, long> config;
-        config["pin"] = 10;
-        config["val_init"] = 4;
-        Dictionary<const char*, int> inputs;
-        //la valeur à renseigner est l'index de val dans le tableau inputs
-        inputs["val"]=0;
-        Dictionary<const char*, int> outputs;
-        //la valeur à renseigner est l'index de val dans le tableau outputs
-        outputs["val"]=0;
-        DeviceSettings s(config, inputs, outputs);
-
+        DeviceSettings s;
+        s.add_config("pin", 10);
+        s.add_config("val_init",4);
+        s.add_input("val");
         dc.add_or_set_device(factory, id, type, s);
     }
     dc.init();   

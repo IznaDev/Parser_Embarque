@@ -4,7 +4,7 @@
 Validation_Result EmptyValidationHandler::validate(const string& expr) const noexcept
 {
     // Empty or white space
-    if(is_whitespace_or_empty(expr))
+    if(is_whitespace_or_empty_string(expr))
     {
         return Validation_Result{false,"Expression should not be empty"};
     }

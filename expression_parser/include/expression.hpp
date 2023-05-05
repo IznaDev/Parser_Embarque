@@ -1,49 +1,46 @@
 #pragma once
 
-#include <string>
-#include <sstream>
-#include <memory>
-#include "utils.hpp"
-#include <cmath>
+#include <cstdlib>
 #include "data_context.hpp"
-#include <numeric>
-#include <vector>
-#include <algorithm>
 
-using namespace std;
+bool is_whitespace_or_empty(const char* text);
 
 class Expression
 {
+    protected:
+        virtual void clean(){}
     public:
+        virtual ~Expression(){ clean();}
         virtual long evaluate(const DataContext* dc = nullptr) const = 0;
         virtual bool update(DataContext* dc=nullptr){return false;}
         virtual bool is_updatable() const {return false;}
-        virtual string to_string() const = 0;
 };
 
 class Constant_Expression: public Expression
 {
     private:
-        string value;
+        long value;
     public:
-        Constant_Expression(const string& value): value(value){}
-        Constant_Expression(string&& value): value(move(value)){}
+        Constant_Expression(const char* value): value(is_whitespace_or_empty(value) ? 0: atol(value)){}
         long evaluate(const DataContext* dc) const override;
-        string to_string() const override {return value;}
 };
 
 class Reference_Expression: public Expression
 {
     private:
-        string reference;
+        char* reference;
+    protected:
+        virtual void clean() override { delete[] reference;}
     public:
-        Reference_Expression(const string& reference):reference(reference){};
+        Reference_Expression(const char* ref):reference(new char[strlen(ref)+1]){
+            strcpy(reference, ref);
+        };
         long evaluate(const DataContext* dc) const override;
         bool set(DataContext* dc, long value)
         {
             if(dc)
             {
-                return dc->set(reference.c_str(), value);
+                return dc->set(reference, value);
             }
             return false;
         }
@@ -51,7 +48,7 @@ class Reference_Expression: public Expression
         {
             if(dc)
             {
-                return dc->increase(reference.c_str(), value);
+                return dc->increase(reference, value);
             }
             return false;
         }
@@ -59,79 +56,92 @@ class Reference_Expression: public Expression
         {
             if(dc)
             {
-                return dc->decrease(reference.c_str(), value);
+                return dc->decrease(reference, value);
             }
             return false;
         }
-        string to_string() const override {return "ref(" + reference +")";}
 };
 
 class Operation_Expression: public Expression
 {
     protected:
-        string id;
+        const char* id;
         int priority{0};
     public:
-        Operation_Expression(const string& id, int priority=0): id(id), priority(priority){}
+        Operation_Expression(const char* id, int priority=0): id(id), priority(priority){}
         bool operator <(const Operation_Expression& other){return this->priority < other.priority;}
         bool operator ==(const Operation_Expression& other){return this->priority == other.priority;}
-        virtual void add_member(unique_ptr<Expression>&& expr) = 0;
-        virtual void add_ref_member(unique_ptr<Reference_Expression>&& ref_expr) = 0;
+        virtual void add_member(Expression* expr) = 0;
+        virtual void add_ref_member(Reference_Expression* ref_expr) = 0;
         virtual bool can_add_member() const = 0;
         virtual bool has_left_member() const = 0;
-        virtual string get_reg_id() const {return id;};
+        virtual const char* get_reg_id() const {return id;};
 };
-
 
 class Unary_Operation_Expression: public Operation_Expression
 {
     protected:
-    unique_ptr<Expression> right_member{nullptr};
+    Expression* right_member{nullptr};
+    void clean() override { if(right_member) {delete right_member; right_member= nullptr;}}
     public:
-        Unary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
+        Unary_Operation_Expression(const char* id, int priority=0): Operation_Expression(id, priority){}
         bool can_add_member() const override {return !right_member;}
         bool has_left_member() const override {return false;}
-        void add_member(unique_ptr<Expression>&& expr) override {
-            right_member = move(expr);
+        void add_member(Expression* expr) override {
+            if(!right_member)
+            {
+                right_member = expr;
+            }
         }
-        void add_ref_member(unique_ptr<Reference_Expression>&& expr) override {
-            right_member = move(expr);
+        void add_ref_member(Reference_Expression* expr) override {
+            if(!right_member)
+            {
+                right_member = expr;
+            }
         }
-        string to_string() const override {return id +"(" + right_member->to_string() + ")";} 
-
 };
 
 class Binary_Operation_Expression: public Operation_Expression
 {
     protected:
-    unique_ptr<Expression> left_member{nullptr};
-    unique_ptr<Expression> right_member{nullptr};
+    Expression* left_member{nullptr};
+    Expression* right_member{nullptr};
+    void clean() override
+    {
+        if(left_member)
+        {
+            delete left_member;
+            left_member = nullptr;
+        }
+        if(right_member)
+        {
+            delete right_member;
+            right_member = nullptr;
+        }
+    }
     public:
-        Binary_Operation_Expression(const string& id, int priority=0): Operation_Expression(id, priority){}
+        Binary_Operation_Expression(const char* id, int priority=0): Operation_Expression(id, priority){}
         bool can_add_member() const override {return !(left_member && right_member);}
         bool has_left_member() const override {return true;}
-        void add_member(unique_ptr<Expression>&& expr) override {
+        void add_member(Expression* expr) override {
             if(left_member)
             {
-                right_member = move(expr);
+                right_member = expr;
             }
             else
             {
-                left_member = move(expr);
+                left_member = expr;
             }
         }
-        void add_ref_member(unique_ptr<Reference_Expression>&& ref_expr) override
+        void add_ref_member(Reference_Expression* ref_expr) override
         {
             if(left_member)
             {
-                right_member = move(ref_expr);
+                right_member = ref_expr;
             }
             else
             {
-                left_member = move(ref_expr);
+                left_member = ref_expr;
             }
         }
-        string to_string() const override {return id +"(" + left_member->to_string() + ", " + right_member->to_string() + ")";} 
-
 };
-
