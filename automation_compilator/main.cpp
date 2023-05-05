@@ -1,14 +1,27 @@
 #include "parser.hpp"
 #include "automation.hpp"
 #include "automation_test.hpp"
-#include <iostream>
+#include "test_code_builder.hpp"
 
-using namespace std;
 
 int main(int argc, char* argv[])
 {
     cout << "argv[1]" << argv[1] << endl;
-    std::string json = "{...}";
+    if(argc < 2)
+    {
+        cout << "Please provide a .json file_path in argument" << endl;
+        return 0;
+    }
+    string file_path(argv[1]);
+    ifstream file(file_path);
+    if(!file.good())
+    {
+        cout << "Provided file: '" << file_path << "'" << "doesn't exist" << endl;
+        return 0;
+    }
+    json json = json::parse(file);
+    TestCodeBuilder builder;
+    builder.build(json);
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
     //3. Générer le code qui décrit les settings
@@ -27,12 +40,12 @@ int main(int argc, char* argv[])
     } */
     // doit donner
     
-    IDeviceFactory* factory = Automation::getFactory("test");
+    TestFactory factory;
     // A faire pour chaque device du json
 
     const char* id = "test_2";
     const char* type = "testinputoutput";
-    Device_Type d_type = factory->get_device_type(type);
+    Device_Type d_type = factory.get_device_type(type);
     DeviceDataContext dc;
     if(d_type!=Device_Type::INVALID)
     {
@@ -40,9 +53,9 @@ int main(int argc, char* argv[])
         s.add_config("pin", 10);
         s.add_config("val_init",4);
         s.add_input("val");
-        dc.add_or_set_device(factory, id, type, s);
+        dc.add_or_set_device(&factory, id, type, s);
     }
-    dc.init();   
+    dc.setup();   
 
     Expression_Parser parser;
     auto result = parser.parse("${test_2.val}");

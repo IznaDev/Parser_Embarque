@@ -28,7 +28,6 @@
             {
                 "pin":12
             },
-            "inputs":["value"],
             "outputs":["value"]          
         }
     ],

@@ -38,7 +38,7 @@ class IDevice
         const char* get_id() const {return id;}
         const char* get_type() const {return type;}
         virtual bool are_settings_valid() const = 0;
-        virtual bool init() = 0;
+        virtual bool setup() = 0;
 };
 
 class IInput: public virtual IDevice
@@ -243,7 +243,7 @@ class DeviceDataContext : public DataContext
                 default: break;
             }
         }
-        bool init()
+        bool setup()
         {
             bool result=true;
             for(int i=0;i<inputs.size();i++)
@@ -251,13 +251,13 @@ class DeviceDataContext : public DataContext
                 const char* key= inputs.get_key(i);
                 if(!outputs.exists(key))
                 {
-                    result = inputs[key]->init() && result;
+                    result = inputs[key]->setup() && result;
                 }
             }
             for(int i=0;i<outputs.size();i++)
             {
                 const char* key= outputs.get_key(i);
-                result = outputs[key]->init() && result;
+                result = outputs[key]->setup() && result;
             }
 
             return result;
