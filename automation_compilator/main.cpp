@@ -17,15 +17,6 @@ int main(int argc, char* argv[])
 
     string filepath = argv[1];
 
-    isExist(filepath);
-    isCorrect(filepath);
-    validJson(SCHEMA_PATH, filepath);
-
-    ifstream inputFile(filepath);
-    json fileParse = json::parse(inputFile);
-    inputFile.close();
-
-    cout << "Mathias, ça marche!!" << endl;
     //std::string json = "{...}";
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)
@@ -89,6 +80,6 @@ int main(int argc, char* argv[])
     {
         cout << "Il y a eu une erreur" << endl;
     }
-    */
+    
     return 0;
 }
