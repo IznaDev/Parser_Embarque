@@ -89,15 +89,16 @@ void add_setup_method(ofstream& output, const json& data)
         string if_expr = b["if"];
         string then_expr = b["then"];
         string else_expr = b["else"];
-        auto result_if = parser.parse(if_expr);
-        output << "Operation_Expression* if_expr" << i << " = new " << result_if.expression->to_cstr() << "();" << endl;
+        // C'est important d'utiliser la simplification d'expression pour diminuer le nombre d'instanciationss
+        auto result_if = parser.parse(if_expr).expression->simplify();
+        output << "Operation_Expression* if_expr" << i << " = new " << result_if->to_cstr() << "();" << endl;
         
         // A partir on a un problème avec le polymorphisme pour accéder aut types des membres potentiels.
         // Une piste serait d'utiliser le pattern visitor
 
         if(result_if)
         {
-            output << "//TEST: " << result_if.expression->to_cstr() << endl;
+            output << "//TEST: " << result_if->to_cstr() << endl;
         }
         output << "// Behavior : " << i << endl;
         output << "// if expression: " << if_expr << endl;
