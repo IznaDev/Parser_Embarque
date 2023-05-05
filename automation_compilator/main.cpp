@@ -1,5 +1,5 @@
 #include "parser.hpp"
-#include "automation.hpp"
+#include "arduino_context.hpp"
 #include "automation_test.hpp"
 #include "test_code_builder.hpp"
 
@@ -57,17 +57,17 @@ int main(int argc, char* argv[])
     }
     dc.setup();
     Expression_Parser parser;
-    auto result = parser.parse("${test_2.val}");
-    auto result_if = parser.parse("${test_2.value} <= 0");
-    auto result_then = parser.parse("${test_2.val} += 3");
-    auto result_else = parser.parse("${test_2.val} -=2");
+    auto result = parser.parse("${sensor_1.val}");
+    auto result_if = parser.parse("${sensor_1.value} <= 0");
+    auto result_then = parser.parse("${sensor_1.val} += 3");
+    auto result_else = parser.parse("${sensor_1.val} -=2");
     if(result && result_if && result_then && result_else)
     {
         for(int i=0;i<10;i++)
         {
             cout << "Device value: " << result.expression->evaluate(&dc) << endl;
             long if_val = result_if.expression->evaluate(&dc);
-            cout << "If ${test_2.value} <= 0: " << if_val << endl;
+            cout << "If ${sensor_1.value} <= 0: " << if_val << endl;
             if(if_val)
             {
                 result_then.expression->update(&dc);
