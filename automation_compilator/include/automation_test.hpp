@@ -3,6 +3,7 @@
 #include "automation.hpp"
 #include <random>
 #include <iostream>
+#include "code_builder.hpp"
 
 using namespace std;
 
@@ -143,3 +144,10 @@ namespace Automation
         return new TestDefaultFactory();
     }
 }
+
+class TestCodeBuilder
+{
+    public:
+        TestCodeBuilder(){}
+        void build(string json);
+};

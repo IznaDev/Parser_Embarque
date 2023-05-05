@@ -2,7 +2,11 @@
 #include "container.hpp"
 #include "data_context.hpp"
 #include <string.h>
-
+#include "expression.hpp"
+#include "expr_mathematical.hpp"
+#include "expr_logical.hpp"
+#include "expr_functions.hpp"
+#include "expr_affectation.hpp"
 
 
 class DeviceSettings
@@ -11,15 +15,15 @@ class DeviceSettings
     Dictionary<const char*, int> inputs;
     Dictionary<const char*,int> outputs;
     public:
-        DeviceSettings(const Dictionary<const char*, long>& config, const Dictionary<const char*, int>& inputs, const Dictionary<const char*,int>& outputs):
-        config(config), inputs(inputs), outputs(outputs){}
-        DeviceSettings(Dictionary<const char*, long>&& config, Dictionary<const char*, int>&& inputs, Dictionary<const char*,int>&& outputs):
-        config(config), inputs(inputs), outputs(outputs){}
+        DeviceSettings(){}
         const Dictionary<const char*, long>& get_config() const {return config;}
         const Dictionary<const char*, int>& get_inputs() const {return inputs;}
         const Dictionary<const char*,int> get_outputs() const {return outputs;}
         bool is_input()const {return inputs.size()>0;}
         bool is_output()const {return outputs.size()>0;}
+        void add_config(const char* id, long value){config[id]=value;}
+        void add_input(const char* id){inputs[id]=inputs.size();}
+        void add_output(const char* id){outputs[id]=outputs.size();}
 };
 
 class IDevice
