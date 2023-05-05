@@ -55,8 +55,7 @@ int main(int argc, char* argv[])
         s.add_input("val");
         dc.add_or_set_device(&factory, id, type, s);
     }
-    dc.setup();   
-
+    dc.setup();
     Expression_Parser parser;
     auto result = parser.parse("${test_2.val}");
     auto result_if = parser.parse("${test_2.value} <= 0");

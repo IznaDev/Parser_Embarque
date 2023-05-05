@@ -264,3 +264,31 @@ class DeviceDataContext : public DataContext
         }
         
 };
+
+class Behavior
+{
+    private:
+        Expression* if_expr{nullptr};
+        Expression* then_expr{nullptr};
+        Expression* else_expr{nullptr};
+    public:
+        Behavior(Expression* if_expr, Expression* then_expr, Expression* else_expr = nullptr):
+            if_expr(if_expr), then_expr(then_expr), else_expr(else_expr){}
+        void process(DeviceDataContext* dc)
+        {
+            if(if_expr && if_expr->evaluate(dc))
+            {
+                if(then_expr)
+                {
+                    then_expr->update(dc);
+                }
+            }
+            else
+            {
+                if(else_expr)
+                {
+                    else_expr->update(dc);
+                };
+            }
+        }
+};

@@ -11,29 +11,9 @@ void add_global_declarations(ostream& output)
     output << "DeviceDataContext dc;" << endl << endl;
 }
 
-string get_include(const string& type)
+string get_factory_include()
 {
-    if(type=="testinput" || type == "testinputoutput" || type == "testoutput")
-    {
-        return "automation_test.hpp";
-    }
-    return "";
-}
-
-vector<string> get_device_includes(const json& json)
-{
-    vector<string> result;
-    set<string> included_types;
-    for(const auto& d: json["devices"])
-    {
-        string include = get_include(d["type"]);
-        if(!include.empty() && included_types.emplace(include).second)
-        {
-            result.push_back(include);
-        }
-    }
-    
-    return result;
+    return "automation_test.hpp";
 }
 
 void add_config(ofstream& output, const string& s_id, const json& config)
@@ -107,10 +87,7 @@ void TestCodeBuilder::build(const json& json)
     {
         add_include(output, include);
     }
-    for(auto& include: get_device_includes(json))
-    {
-        add_include(output, include);
-    }
+    add_include(output, get_factory_include());
 
     add_global_declarations(output);
     add_setup_method(output, json);

@@ -43,6 +43,29 @@ class Affectation_Expression: public Operation_Expression
                 left_member = ref_expr;
             }
         }
+        bool has_variable() override {return true;}
+        Expression* simplify() override
+        {
+            if(right_member)
+            {
+                if(!right_member->is_leaf())
+                {
+                    Expression* expr = right_member->simplify();
+                    if(expr!=right_member)
+                    {
+                        delete right_member;
+                        right_member = expr;
+                    }
+                }
+            }
+            if(!has_variable())
+            {
+                return new Constant_Expression(this->evaluate()); 
+            }
+
+            return this;
+        }
+        bool is_leaf() override {return false;}
 };
 
 class Set_Expression: public Affectation_Expression

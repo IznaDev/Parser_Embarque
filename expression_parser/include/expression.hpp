@@ -5,6 +5,7 @@
 
 bool is_whitespace_or_empty(const char* text);
 
+
 class Expression
 {
     protected:
@@ -14,6 +15,9 @@ class Expression
         virtual long evaluate(const DataContext* dc = nullptr) const = 0;
         virtual bool update(DataContext* dc=nullptr){return false;}
         virtual bool is_updatable() const {return false;}
+        virtual Expression* simplify() = 0;
+        virtual bool has_variable() = 0;
+        virtual bool is_leaf() = 0;
 };
 
 class Constant_Expression: public Expression
@@ -22,7 +26,11 @@ class Constant_Expression: public Expression
         long value;
     public:
         Constant_Expression(const char* value): value(is_whitespace_or_empty(value) ? 0: atol(value)){}
+        Constant_Expression(long value): value(value){}
         long evaluate(const DataContext* dc) const override;
+        bool has_variable() override{return false;}
+        bool is_leaf() override{return true;}
+        Expression* simplify(){return this;}
 };
 
 class Reference_Expression: public Expression
@@ -60,6 +68,9 @@ class Reference_Expression: public Expression
             }
             return false;
         }
+        bool has_variable() override{return true;}
+        bool is_leaf() override{return true;}
+        Expression* simplify(){return this;}
 };
 
 class Operation_Expression: public Expression
@@ -99,6 +110,28 @@ class Unary_Operation_Expression: public Operation_Expression
                 right_member = expr;
             }
         }
+        Expression* simplify() override
+        {
+            if(right_member)
+            {
+                if(!right_member->is_leaf())
+                {
+                    Expression* expr = right_member->simplify();
+                    if(expr!=right_member)
+                    {
+                        delete right_member;
+                        right_member = expr;
+                    }
+                }
+                if(!right_member->has_variable())
+                {
+                    return new Constant_Expression(this->evaluate());
+                }
+            }
+            return this;
+        }
+        bool has_variable() override{return !right_member || right_member->has_variable();}
+        bool is_leaf() override{return false;}
 };
 
 class Binary_Operation_Expression: public Operation_Expression
@@ -144,4 +177,39 @@ class Binary_Operation_Expression: public Operation_Expression
                 left_member = ref_expr;
             }
         }
+        Expression* simplify() override
+        {
+            if(left_member)
+            {
+                if(!left_member->is_leaf())
+                {
+                    Expression* expr = left_member->simplify();
+                    if(expr!=left_member)
+                    {
+                        delete left_member;
+                        left_member = expr;
+                    }
+                }
+            }
+            if(right_member)
+            {
+                if(!right_member->is_leaf())
+                {
+                    Expression* expr = right_member->simplify();
+                    if(expr!=right_member)
+                    {
+                        delete right_member;
+                        right_member = expr;
+                    }
+                }
+            }
+            if(!has_variable())
+            {
+                return new Constant_Expression(this->evaluate()); 
+            }
+
+            return this;
+        }
+        bool has_variable() override {return (!left_member || left_member->has_variable()) || (!right_member || right_member->has_variable()); }
+        bool is_leaf() override{return false;}
 };
