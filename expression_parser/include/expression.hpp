@@ -32,6 +32,7 @@ class Constant_Expression: public Expression
         bool has_variable() override{return false;}
         bool is_leaf() override{return true;}
         Expression* simplify(){return this;}
+        const char* to_cstr() override { return "Constant_Expression";}
 };
 
 class Reference_Expression: public Expression
@@ -72,6 +73,7 @@ class Reference_Expression: public Expression
         bool has_variable() override{return true;}
         bool is_leaf() override{return true;}
         Expression* simplify(){return this;}
+        const char* to_cstr() override { return "Reference_Expression";}
 };
 
 class Operation_Expression: public Expression
