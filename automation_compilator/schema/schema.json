@@ -62,10 +62,7 @@
                     },
                     "else": {
                         "description": "Action à effectuer si la condition n'est pas remplie",
-                        "anyOf": [
-                            {"type": "string"},
-                            {"type": "array"}
-                        ]
+                        "type": "string"    
                     }
                 },
                 "required": ["if", "then", "else"]
