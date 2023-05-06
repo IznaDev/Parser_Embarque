@@ -10,6 +10,14 @@ bool is_whitespace_or_empty(const char* text)
     return false;
 }
 
+void Binary_Operation_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
 long Constant_Expression::evaluate(const DataContext* dc) const
 {
     return value;

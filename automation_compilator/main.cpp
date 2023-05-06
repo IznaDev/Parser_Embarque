@@ -20,7 +20,7 @@ int main(int argc, char* argv[])
         return 0;
     }
     json json = json::parse(file);
-    TestCodeBuilder builder;
+    ArduinoCodeBuilder builder;
     builder.build(json);
     //1. Valider json avec schéma
     //2. Iterer dans l'objet json (ex: nlohmann)

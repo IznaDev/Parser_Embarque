@@ -83,7 +83,7 @@ class DeviceDataContext : public DataContext
             if(ref)
             {
                 strcpy(device_id, ref);
-                ref = strtok(NULL, ".");
+                ref = strtok(NULL, " ");
                 if(ref)
                 {
                     strcpy(value_id, ref);

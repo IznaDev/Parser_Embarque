@@ -4,6 +4,17 @@
 #include <iostream>
 using namespace std;
 
+void ArduinoCodebuilderExpressionVisitor::visit(const Expression* expr)
+{
+    cout << "Visiting expression" << endl;
+    expr->accept(this);
+}
+
+void ArduinoCodebuilderExpressionVisitor::visit(const Binary_Operation_Expression* expr)
+{
+    cout << "Visiting binary_operation expression: " << expr->to_cstr() << endl;
+}
+
 void add_global_declarations(ostream& output, const json& data)
 {
     output << endl;
@@ -84,6 +95,7 @@ void add_setup_method(ofstream& output, const json& data)
     output << "// TODO générer le code pour les expressions!!" << endl;
     int i=1;
     Expression_Parser parser;
+    ArduinoCodebuilderExpressionVisitor visitor;
     for(const auto& b: data["behaviors"])
     {
         string if_expr = b["if"];
@@ -92,12 +104,12 @@ void add_setup_method(ofstream& output, const json& data)
         // C'est important d'utiliser la simplification d'expression pour diminuer le nombre d'instanciationss
         auto result_if = parser.parse(if_expr).expression->simplify();
         output << "Operation_Expression* if_expr" << i << " = new " << result_if->to_cstr() << "();" << endl;
-        
         // A partir on a un problème avec le polymorphisme pour accéder aut types des membres potentiels.
         // Une piste serait d'utiliser le pattern visitor
 
         if(result_if)
         {
+            visitor.visit(result_if);
             output << "//TEST: " << result_if->to_cstr() << endl;
         }
         output << "// Behavior : " << i << endl;
@@ -123,7 +135,7 @@ void add_loop_method(ofstream& output)
 }
 
 
-void TestCodeBuilder::build(const json& json)
+void ArduinoCodeBuilder::build(const json& json)
 {
     ofstream output("main_code.cpp");
 

@@ -1,9 +1,12 @@
 #pragma once
 
-#include <cstdlib>
+#include <stdlib.h>
 #include "data_context.hpp"
 
 bool is_whitespace_or_empty(const char* text);
+
+
+class IExpressionVisitor;
 
 
 class Expression
@@ -18,7 +21,8 @@ class Expression
         virtual Expression* simplify() = 0;
         virtual bool has_variable() = 0;
         virtual bool is_leaf() = 0;
-        virtual const char* to_cstr(){ return "Expression";}
+        virtual const char* to_cstr() const{ return "Expression";}
+        virtual void accept(IExpressionVisitor* visitor) const {}
 };
 
 class Constant_Expression: public Expression
@@ -32,7 +36,7 @@ class Constant_Expression: public Expression
         bool has_variable() override{return false;}
         bool is_leaf() override{return true;}
         Expression* simplify(){return this;}
-        const char* to_cstr() override { return "Constant_Expression";}
+        const char* to_cstr() const override { return "Constant_Expression";}
 };
 
 class Reference_Expression: public Expression
@@ -73,7 +77,7 @@ class Reference_Expression: public Expression
         bool has_variable() override{return true;}
         bool is_leaf() override{return true;}
         Expression* simplify(){return this;}
-        const char* to_cstr() override { return "Reference_Expression";}
+        const char* to_cstr() const override { return "Reference_Expression";}
 };
 
 class Operation_Expression: public Expression
@@ -215,4 +219,143 @@ class Binary_Operation_Expression: public Operation_Expression
         }
         bool has_variable() override {return (!left_member || left_member->has_variable()) || (!right_member || right_member->has_variable()); }
         bool is_leaf() override{return false;}
+        void accept(IExpressionVisitor* visitor) const override;
+};
+
+class Function_Expression: public Expression
+{
+    protected:
+        static const int max_size=256;
+        const char* id;
+        int last_index{0};
+        Expression* args[Function_Expression::max_size];
+        void clean() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i])
+                {
+                    delete args[i];
+                    args[i]=nullptr;
+                }
+            }
+            last_index = 0;
+        }
+    public:
+        Function_Expression(const char* id): id(id){};
+        void add_arg(Expression* expr){
+            if(last_index<Function_Expression::max_size)
+            {
+                args[last_index++] = expr;
+            }
+        }
+        Expression* simplify() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i])
+                {
+                    if(!args[i]->is_leaf())
+                    {
+                        Expression* expr = args[i]->simplify();
+                        if(expr != args[i])
+                        {
+                            delete args[i];
+                            args[i] = expr;
+                        }
+                    }
+                }
+            }
+            if(!has_variable())
+            {
+                return new Constant_Expression(this->evaluate());
+            }
+            return this;
+        }
+        virtual bool has_variable() override
+        {
+            for(int i=0;i<last_index;i++)
+            {
+                if(args[i] && args[i]->has_variable())
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+        virtual bool is_leaf() override {return false;}
+};
+
+class Affectation_Expression: public Operation_Expression
+{
+    protected:
+        Reference_Expression* left_member{nullptr};
+        Expression* right_member{nullptr};
+        void clean() override 
+        {
+            if(left_member)
+            {
+                delete left_member;
+                left_member = nullptr;
+            }
+            if(right_member)
+            {
+                delete right_member;
+                right_member = nullptr;
+            }
+        }
+    public:
+        Affectation_Expression(const char* id, int priority=-16): Operation_Expression(id, priority){}
+        bool can_add_member() const override {return !(left_member && right_member);}
+        bool has_left_member() const override {return true;}
+        bool is_updatable() const override {return true;}
+        void add_member(Expression* expr) override {
+            if(left_member)
+            {
+                right_member = expr;
+            }
+        }
+        void add_ref_member(Reference_Expression* ref_expr) override
+        {
+            if(left_member)
+            {
+                right_member = ref_expr;
+            }
+            else
+            {
+                
+                left_member = ref_expr;
+            }
+        }
+        bool has_variable() override {return true;}
+        Expression* simplify() override
+        {
+            if(right_member)
+            {
+                if(!right_member->is_leaf())
+                {
+                    Expression* expr = right_member->simplify();
+                    if(expr!=right_member)
+                    {
+                        delete right_member;
+                        right_member = expr;
+                    }
+                }
+            }
+            if(!has_variable())
+            {
+                return new Constant_Expression(this->evaluate()); 
+            }
+
+            return this;
+        }
+        bool is_leaf() override {return false;}
+};
+
+class IExpressionVisitor
+{
+    public:
+        virtual void visit(const Expression* expr) = 0;
+        virtual void visit(const Binary_Operation_Expression* expr) = 0;
 };
