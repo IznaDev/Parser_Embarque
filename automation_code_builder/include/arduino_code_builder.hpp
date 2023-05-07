@@ -29,4 +29,7 @@ class ArduinoCodebuilderExpressionVisitor: public IExpressionVisitor
         void visit(const Reference_Expression* expr) override;
         void visit(const Binary_Operation_Expression* expr) override;
         void visit(const Affectation_Expression* expr) override;
+        void visit(const Unary_Operation_Expression* expr) override;
+        void visit(const Function_Expression* expr) override;
+        void visit(const Custom_Function_Expression* expr) override;
 };

@@ -42,6 +42,30 @@ void Affectation_Expression::accept(IExpressionVisitor* visitor) const
     }
 }
 
+void Unary_Operation_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
+void Function_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
+void Custom_Function_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
 long Constant_Expression::evaluate(const DataContext* dc) const
 {
     return value;

@@ -143,6 +143,8 @@ class Unary_Operation_Expression: public Operation_Expression
         }
         bool has_variable() const override{return !right_member || right_member->has_variable();}
         bool is_leaf() const override{return false;}
+        void accept(IExpressionVisitor* visitor) const override;
+        const Expression* get_right_member() const {return right_member;}
 };
 
 class Binary_Operation_Expression: public Operation_Expression
@@ -291,6 +293,7 @@ class Function_Expression: public Expression
             return false;
         }
         virtual bool is_leaf() const override {return false;}
+        void accept(IExpressionVisitor* visitor) const override;
 };
 
 class Affectation_Expression: public Operation_Expression
@@ -362,6 +365,29 @@ class Affectation_Expression: public Operation_Expression
         const Expression* get_right_member() const {return right_member;}
 };
 
+class Custom_Function_Expression: public Function_Expression
+{
+    private: 
+        Expression* expression;
+        const char* var_args[Function_Expression::max_size]={"1","2","3","4","5","6", "7","8","9","10"};
+    protected:
+        void clean() override 
+        {
+            if(expression)
+            {
+                delete expression;
+                expression = nullptr;
+            }
+        }
+    public:
+        Custom_Function_Expression(const char* id, Expression* func): Function_Expression(id), expression(func){
+            func = nullptr;
+        }
+        long evaluate(const DataContext* dc) const override;
+        const char* to_cstr() const override {return "Custom_Function_Expression";}
+        void accept(IExpressionVisitor* visitor) const override;
+};
+
 class IExpressionVisitor
 {
     public:
@@ -370,4 +396,7 @@ class IExpressionVisitor
         virtual void visit(const Reference_Expression* expr) = 0;
         virtual void visit(const Binary_Operation_Expression* expr) = 0;
         virtual void visit(const Affectation_Expression* expr) = 0;
+        virtual void visit(const Unary_Operation_Expression* expr) = 0;
+        virtual void visit(const Function_Expression* expr) = 0;
+        virtual void visit(const Custom_Function_Expression* expr) = 0;
 };

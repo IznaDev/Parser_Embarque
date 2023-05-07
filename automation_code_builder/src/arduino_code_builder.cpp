@@ -21,7 +21,12 @@ void ArduinoCodebuilderExpressionVisitor::add_member(const string& ref_id, int& 
         }
         else
         {
-            //TODO: Si l'exprssion est une expression ou une fonction
+            // TODO à tester quand les membres sont des expressions ou des fonctions
+            string member_id = ref_id+"_op" + to_string(index++);
+            //On revisite récursivement les membres qui sont des expression ou des fonctions avant de les ajouter au parent
+            ArduinoCodebuilderExpressionVisitor visitor(output, member_id);
+            visitor.visit(expr);
+            output << "\t" << ref_id << "->add_member( " << member_id << " );" << endl; 
         }
     }
 }
@@ -59,6 +64,23 @@ void ArduinoCodebuilderExpressionVisitor::visit(const Affectation_Expression* ex
     output << "\tOperation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
     int op_index=1;
     add_member(expr_id, op_index, expr->get_left_member());
+    add_member(expr_id, op_index, expr->get_right_member());
+}
+
+void ArduinoCodebuilderExpressionVisitor::visit(const Function_Expression* expr)
+{
+    //TODO gestion des fonctions
+}
+
+void ArduinoCodebuilderExpressionVisitor::visit(const Custom_Function_Expression* expr)
+{
+    //TODO gestion des fonctions customs
+}
+
+void ArduinoCodebuilderExpressionVisitor::visit(const Unary_Operation_Expression* expr)
+{
+    output << "\tOperation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
+    int op_index=1;
     add_member(expr_id, op_index, expr->get_right_member());
 }
 
@@ -151,8 +173,7 @@ void add_setup_method(ofstream& output, const json& data)
         auto result_if = parser.parse(if_expr).expression->simplify();
         auto result_then = parser.parse(then_expr).expression->simplify();
         auto result_else = parser.parse(else_expr).expression->simplify();
-        // A partir on a un problème avec le polymorphisme pour accéder aut types des membres potentiels.
-        // Une piste serait d'utiliser le pattern visitor
+
         string if_expr_id = "if_expr" + to_string(i);
         string then_expr_id = "then_expr"+ to_string(i);
         string else_expr_id = "else_expr" + to_string(i);
