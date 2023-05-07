@@ -18,6 +18,30 @@ void Binary_Operation_Expression::accept(IExpressionVisitor* visitor) const
     }
 }
 
+void Constant_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
+void Reference_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
+void Affectation_Expression::accept(IExpressionVisitor* visitor) const
+{
+    if(visitor)
+    {
+        visitor->visit(this);
+    }
+}
+
 long Constant_Expression::evaluate(const DataContext* dc) const
 {
     return value;

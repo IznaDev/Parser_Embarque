@@ -19,8 +19,8 @@ class Expression
         virtual bool update(DataContext* dc=nullptr){return false;}
         virtual bool is_updatable() const {return false;}
         virtual Expression* simplify() = 0;
-        virtual bool has_variable() = 0;
-        virtual bool is_leaf() = 0;
+        virtual bool has_variable() const  = 0;
+        virtual bool is_leaf() const = 0;
         virtual const char* to_cstr() const{ return "Expression";}
         virtual void accept(IExpressionVisitor* visitor) const {}
 };
@@ -33,10 +33,12 @@ class Constant_Expression: public Expression
         Constant_Expression(const char* value): value(is_whitespace_or_empty(value) ? 0: atol(value)){}
         Constant_Expression(long value): value(value){}
         long evaluate(const DataContext* dc) const override;
-        bool has_variable() override{return false;}
-        bool is_leaf() override{return true;}
+        bool has_variable() const  override{return false;}
+        bool is_leaf() const override{return true;}
         Expression* simplify(){return this;}
         const char* to_cstr() const override { return "Constant_Expression";}
+        void accept(IExpressionVisitor* visitor) const override;
+        long get_value() const {return value;}
 };
 
 class Reference_Expression: public Expression
@@ -74,10 +76,12 @@ class Reference_Expression: public Expression
             }
             return false;
         }
-        bool has_variable() override{return true;}
-        bool is_leaf() override{return true;}
+        bool has_variable() const override{return true;}
+        bool is_leaf() const override{return true;}
         Expression* simplify(){return this;}
         const char* to_cstr() const override { return "Reference_Expression";}
+        void accept(IExpressionVisitor* visitor) const override;
+        const char* get_ref() const {return reference;}
 };
 
 class Operation_Expression: public Expression
@@ -137,8 +141,8 @@ class Unary_Operation_Expression: public Operation_Expression
             }
             return this;
         }
-        bool has_variable() override{return !right_member || right_member->has_variable();}
-        bool is_leaf() override{return false;}
+        bool has_variable() const override{return !right_member || right_member->has_variable();}
+        bool is_leaf() const override{return false;}
 };
 
 class Binary_Operation_Expression: public Operation_Expression
@@ -217,9 +221,11 @@ class Binary_Operation_Expression: public Operation_Expression
 
             return this;
         }
-        bool has_variable() override {return (!left_member || left_member->has_variable()) || (!right_member || right_member->has_variable()); }
-        bool is_leaf() override{return false;}
+        bool has_variable() const override {return (!left_member || left_member->has_variable()) || (!right_member || right_member->has_variable()); }
+        bool is_leaf() const override{return false;}
         void accept(IExpressionVisitor* visitor) const override;
+        const Expression* get_left_member() const {return left_member;}
+        const Expression* get_right_member() const {return right_member;}
 };
 
 class Function_Expression: public Expression
@@ -272,7 +278,7 @@ class Function_Expression: public Expression
             }
             return this;
         }
-        virtual bool has_variable() override
+        virtual bool has_variable() const override
         {
             for(int i=0;i<last_index;i++)
             {
@@ -284,7 +290,7 @@ class Function_Expression: public Expression
 
             return false;
         }
-        virtual bool is_leaf() override {return false;}
+        virtual bool is_leaf() const override {return false;}
 };
 
 class Affectation_Expression: public Operation_Expression
@@ -328,7 +334,7 @@ class Affectation_Expression: public Operation_Expression
                 left_member = ref_expr;
             }
         }
-        bool has_variable() override {return true;}
+        bool has_variable() const override {return true;}
         Expression* simplify() override
         {
             if(right_member)
@@ -350,12 +356,18 @@ class Affectation_Expression: public Operation_Expression
 
             return this;
         }
-        bool is_leaf() override {return false;}
+        bool is_leaf() const override {return false;}
+        void accept(IExpressionVisitor* visitor) const override;
+        const Reference_Expression* get_left_member() const {return left_member;}
+        const Expression* get_right_member() const {return right_member;}
 };
 
 class IExpressionVisitor
 {
     public:
         virtual void visit(const Expression* expr) = 0;
+        virtual void visit(const Constant_Expression* expr) = 0;
+        virtual void visit(const Reference_Expression* expr) = 0;
         virtual void visit(const Binary_Operation_Expression* expr) = 0;
+        virtual void visit(const Affectation_Expression* expr) = 0;
 };
