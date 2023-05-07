@@ -181,10 +181,50 @@ void add_loop_method(ofstream& output)
     output << "}" << endl;
 }
 
-
-void ArduinoCodeBuilder::build(const json& json)
+void copy_included_files(const json& json, const filesystem::path& output_directory)
 {
-    ofstream output("main_code.cpp");
+    vector<string> expression_parser_files{
+        "container.hpp",
+        "data_context.hpp",
+        "expression.hpp",
+        "expr_mathematical.hpp",
+        "expr_logical.hpp",
+        "expr_functions.hpp",
+        "expr_affectation.hpp"
+    };
+
+    vector<string> automation_code_builder_files
+    {
+        "automation.hpp",
+        //TODO arduino_context.hpp doit être généré dynamiquement pour que le factory ne contienne que des rérérences
+        // aux devices utilisés (pour avoir le fichier compilé le plus petit possible)
+        "arduino_context.hpp",
+        // TODO La liste des fichiers à inclure doit dépendre des devices du fichier json
+        "hcsr501.hpp",
+        "LED.hpp"
+    };
+
+    for(const auto& file: expression_parser_files)
+    {
+       filesystem::path src = filesystem::path("../../expression_parser/include")/filesystem::path(file);
+       filesystem::path dest = output_directory/src.filename();
+       filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
+    }
+
+    for(const auto& file: automation_code_builder_files)
+    {
+       filesystem::path src = filesystem::path("../../automation_code_builder/include")/filesystem::path(file);
+       filesystem::path dest = output_directory/src.filename();
+       filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
+    }
+}
+
+
+void ArduinoCodeBuilder::build(const json& json, const filesystem::path& output_directory)
+{
+
+    copy_included_files(json, output_directory);
+    ofstream output(output_directory / filesystem::path("main_code.cpp"));
 
     add_include(output, get_factory_include());
 

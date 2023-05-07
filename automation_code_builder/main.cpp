@@ -4,6 +4,7 @@
 #include "arduino_code_builder.hpp"
 
 
+
 int main(int argc, char* argv[])
 {
     cout << "argv[1]" << argv[1] << endl;
@@ -20,61 +21,21 @@ int main(int argc, char* argv[])
         return 0;
     }
     json json = json::parse(file);
-    ArduinoCodeBuilder builder;
-    builder.build(json);
     //1. Valider json avec schéma
-    //2. Iterer dans l'objet json (ex: nlohmann)
+    //TODO arthur
+    //2. Valider json avec parser
+    // TODO arthur
     //3. Générer le code qui décrit les settings
-    // exemple target {"target":"test", ....}
-    //exemple device dans json:
-    /* {
-            "id":"test_2",
-            "type":"testinputoutput",
-            "config":
-            {
-                "pin":10,
-                "val_init":3
-            },
-            "inputs":["val"],
-            "outputs":["val"]
-    } */
-    // doit donner
-    
-    TestFactory factory;
-    // A faire pour chaque device du json
+    // TODO oussama: à compléter et tester
+    filesystem::path output_directory ("generated_code");
+    cout << "Generating code to: " << filesystem::absolute(output_directory) << endl;
+    if(!filesystem::exists(output_directory))
+    {
+        filesystem::create_directory(output_directory);
+    }
 
-    const char* id = "sensor_1";
-    const char* type = "testinput";
-    Device_Type d_type = factory.get_device_type(type);
-    DeviceDataContext dc;
-    if(d_type!=Device_Type::INVALID)
-    {
-        DeviceSettings s;
-        s.add_config("pin", 10);
-        s.add_config("val_init",4);
-        s.add_input("val");
-        s.add_input("val2");
-        s.add_input("intensite");
-        dc.add_or_set_device(&factory, id, type, s);
-    }
-    dc.setup();
-    Expression_Parser parser;
-    auto result = parser.parse("${sensor_1.intensite}");
-    auto result2 = parser.parse("${sensor_1.val2}");
-    auto result3 = parser.parse("${sensor_1.toto}");
-    if(result && result2 && result3)
-    {
-        for(int i=0;i<10;i++)
-        {
-            cout << "result: " << result.expression->evaluate(&dc) << endl;
-            cout << "result2: " << result2.expression->evaluate(&dc) << endl;
-            cout << "result3: " << result3.expression->evaluate(&dc) << endl;
-        }
-        
-    }
-    else
-    {
-        cout << "Il y a eu une erreur" << endl;
-    }
+    ArduinoCodeBuilder builder;
+    builder.build(json, output_directory);
+    cout << "Completed" << endl;
     return 0;
 }

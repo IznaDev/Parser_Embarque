@@ -11,7 +11,7 @@ class ArduinoCodeBuilder : public ICodeBuilder
 {
 
     public:
-        void build(const json& json) override;
+        void build(const json& json, const filesystem::path& output_directory) override;
 };
 
 

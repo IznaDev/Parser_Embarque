@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <fstream>
+#include <filesystem>
 #include <nlohmann/json.hpp>
 
 using json =  nlohmann::json;
@@ -21,5 +22,5 @@ void add_include(ostream& output, const string& include);
 class ICodeBuilder
 {
     public:
-        virtual void build(const json& json) = 0;
+        virtual void build(const json& json, const filesystem::path& output_directory) = 0;
 };
