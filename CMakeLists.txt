@@ -12,5 +12,5 @@ add_subdirectory(expression_parser)
 
 add_subdirectory(parser_client)
 
-add_subdirectory(automation_compilator)
+add_subdirectory(automation_code_builder)
 
