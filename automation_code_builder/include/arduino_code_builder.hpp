@@ -20,8 +20,9 @@ class ArduinoCodebuilderExpressionVisitor: public IExpressionVisitor
     ostream& output;
     const string& expr_id;
     private:
-        void add_member(const string& var_id, int& index, const Expression* expr);
-        void add_member_ref(const string& ref_id, const Expression* expr);
+        void add_member(int& index, const Expression* expr);
+        void add_arg(int& index, const Expression* expr);
+        void add_member_ref(const Expression* expr);
     public:
         ArduinoCodebuilderExpressionVisitor(ostream& output, const string& epxr_id): output(output), expr_id(epxr_id){}
         void visit(const Expression* expr) override;
@@ -31,5 +32,4 @@ class ArduinoCodebuilderExpressionVisitor: public IExpressionVisitor
         void visit(const Affectation_Expression* expr) override;
         void visit(const Unary_Operation_Expression* expr) override;
         void visit(const Function_Expression* expr) override;
-        void visit(const Custom_Function_Expression* expr) override;
 };

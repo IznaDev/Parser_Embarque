@@ -236,7 +236,7 @@ class Function_Expression: public Expression
         static const int max_size=256;
         const char* id;
         int last_index{0};
-        Expression* args[Function_Expression::max_size];
+        Expression** args;
         void clean() override
         {
             for(int i=0;i<last_index;i++)
@@ -247,13 +247,20 @@ class Function_Expression: public Expression
                     args[i]=nullptr;
                 }
             }
+            delete[] args;
             last_index = 0;
         }
     public:
         Function_Expression(const char* id): id(id){};
         void add_arg(Expression* expr){
-            if(last_index<Function_Expression::max_size)
+            if(last_index<max_size)
             {
+                Expression** new_args=new Expression*[last_index+1];
+                for(int i=0;i<last_index;i++)
+                {
+                    new_args[i]=args[i];
+                }
+                args = new_args;
                 args[last_index++] = expr;
             }
         }
@@ -294,6 +301,11 @@ class Function_Expression: public Expression
         }
         virtual bool is_leaf() const override {return false;}
         void accept(IExpressionVisitor* visitor) const override;
+        int args_size() const {return last_index;}
+        const Expression* get_arg(int index) const
+        {
+            return args[index];
+        }
 };
 
 class Affectation_Expression: public Operation_Expression
@@ -369,7 +381,7 @@ class Custom_Function_Expression: public Function_Expression
 {
     private: 
         Expression* expression;
-        const char* var_args[Function_Expression::max_size]={"1","2","3","4","5","6", "7","8","9","10"};
+        static const char* var_args[Function_Expression::max_size];
     protected:
         void clean() override 
         {
@@ -385,7 +397,7 @@ class Custom_Function_Expression: public Function_Expression
         }
         long evaluate(const DataContext* dc) const override;
         const char* to_cstr() const override {return "Custom_Function_Expression";}
-        void accept(IExpressionVisitor* visitor) const override;
+        const Expression* get_expression() const {return expression;}
 };
 
 class IExpressionVisitor
@@ -398,5 +410,4 @@ class IExpressionVisitor
         virtual void visit(const Affectation_Expression* expr) = 0;
         virtual void visit(const Unary_Operation_Expression* expr) = 0;
         virtual void visit(const Function_Expression* expr) = 0;
-        virtual void visit(const Custom_Function_Expression* expr) = 0;
 };

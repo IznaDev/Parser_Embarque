@@ -9,33 +9,55 @@ void ArduinoCodebuilderExpressionVisitor::visit(const Expression* expr)
     expr->accept(this);
 }
 
-void ArduinoCodebuilderExpressionVisitor::add_member(const string& ref_id, int& index, const Expression* expr)
+void ArduinoCodebuilderExpressionVisitor::add_member(int& index, const Expression* expr)
 {
     if(expr)
     {
         if(expr->is_leaf())
         {
-            output << "\t" << ref_id << "->add_member( new ";
+            output << "\t" << expr_id << "->add_member( new ";
             expr->accept(this);
             output << " );" << endl; 
         }
         else
         {
             // TODO à tester quand les membres sont des expressions ou des fonctions
-            string member_id = ref_id+"_op" + to_string(index++);
+            string member_id = expr_id+"_op" + to_string(index++);
             //On revisite récursivement les membres qui sont des expression ou des fonctions avant de les ajouter au parent
             ArduinoCodebuilderExpressionVisitor visitor(output, member_id);
             visitor.visit(expr);
-            output << "\t" << ref_id << "->add_member( " << member_id << " );" << endl; 
+            output << "\t" << expr_id << "->add_member( " << member_id << " );" << endl; 
         }
     }
 }
 
-void ArduinoCodebuilderExpressionVisitor::add_member_ref(const string& ref_id, const Expression* expr)
+void ArduinoCodebuilderExpressionVisitor::add_arg(int& index, const Expression* expr)
 {
     if(expr)
     {
-        output << "\t" << ref_id << "->add_member_ref( new ";
+        if(expr->is_leaf())
+        {
+            output << "\t" << expr_id << "->add_arg( new ";
+            expr->accept(this);
+            output << " );" << endl; 
+        }
+        else
+        {
+            // TODO à tester quand les membres sont des expressions ou des fonctions
+            string arg_id = expr_id+"_arg" + to_string(index++);
+            //On revisite récursivement les membres qui sont des expression ou des fonctions avant de les ajouter au parent
+            ArduinoCodebuilderExpressionVisitor visitor(output, arg_id);
+            visitor.visit(expr);
+            output << "\t" << expr_id << "->add_arg( " << arg_id << " );" << endl; 
+        }
+    }
+}
+
+void ArduinoCodebuilderExpressionVisitor::add_member_ref(const Expression* expr)
+{
+    if(expr)
+    {
+        output << "\t" << expr_id << "->add_ref_member( new ";
             expr->accept(this);
             output << " );" << endl; 
     }
@@ -55,33 +77,33 @@ void ArduinoCodebuilderExpressionVisitor::visit(const Binary_Operation_Expressio
 {
     output << "\tOperation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
     int op_index=1;
-    add_member(expr_id, op_index, expr->get_left_member());
-    add_member(expr_id, op_index, expr->get_right_member());
+    add_member(op_index, expr->get_left_member());
+    add_member(op_index, expr->get_right_member());
 }
 
 void ArduinoCodebuilderExpressionVisitor::visit(const Affectation_Expression* expr)
 {
-    output << "\tOperation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
+    output << "\tAffectation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
     int op_index=1;
-    add_member(expr_id, op_index, expr->get_left_member());
-    add_member(expr_id, op_index, expr->get_right_member());
+    add_member_ref(expr->get_left_member());
+    add_member(op_index, expr->get_right_member());
 }
 
 void ArduinoCodebuilderExpressionVisitor::visit(const Function_Expression* expr)
 {
-    //TODO gestion des fonctions
-}
-
-void ArduinoCodebuilderExpressionVisitor::visit(const Custom_Function_Expression* expr)
-{
-    //TODO gestion des fonctions customs
+    output << "\tFunction_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
+    int arg_index=1;
+    for(int i=0;i<expr->args_size(); i++)
+    {
+        add_arg(arg_index, expr->get_arg(i));
+    }
 }
 
 void ArduinoCodebuilderExpressionVisitor::visit(const Unary_Operation_Expression* expr)
 {
     output << "\tOperation_Expression* " << expr_id << " = new " << expr->to_cstr() << "();" << endl;
     int op_index=1;
-    add_member(expr_id, op_index, expr->get_right_member());
+    add_member(op_index, expr->get_right_member());
 }
 
 void add_global_declarations(ostream& output, const json& data)
