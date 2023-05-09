@@ -28,7 +28,7 @@ int main()
             cout << "Could not add function '" << p.first << "' : " << result.message << endl;
         }
     }
-    
+
     MemoryDataContext dc;
     dc.add_or_set("var_1", 5);
     dc.add_or_set("var_2", 3);

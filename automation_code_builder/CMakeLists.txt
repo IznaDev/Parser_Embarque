@@ -1,4 +1,4 @@
-set(comp_name automation_compilator)
+set(comp_name automation_code_builder)
 
 include(FetchContent)
 
