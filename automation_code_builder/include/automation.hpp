@@ -83,7 +83,7 @@ class DeviceDataContext : public DataContext
             if(ref)
             {
                 strcpy(device_id, ref);
-                ref = strtok(NULL, ".");
+                ref = strtok(NULL, " ");
                 if(ref)
                 {
                     strcpy(value_id, ref);
@@ -270,9 +270,35 @@ class Behavior
         Expression* if_expr{nullptr};
         Expression* then_expr{nullptr};
         Expression* else_expr{nullptr};
+        void clean()
+        {
+            if(if_expr)
+            {
+                delete if_expr;
+                if_expr = nullptr;
+            }
+            if(then_expr)
+            {
+                delete then_expr;
+                then_expr = nullptr;
+            }
+            if(else_expr)
+            {
+                delete else_expr;
+                else_expr = nullptr;
+            }
+        }
     public:
         Behavior(Expression* if_expr, Expression* then_expr, Expression* else_expr = nullptr):
             if_expr(if_expr), then_expr(then_expr), else_expr(else_expr){}
+        Behavior(const Behavior& other) = delete;
+        Behavior(Behavior&& other) = delete;
+        Behavior& operator=(const Behavior& other) = delete;
+        Behavior& operator=(Behavior&& other) = delete;
+        ~Behavior()
+        {
+            clean();
+        }
         void process(DeviceDataContext* dc)
         {
             if(if_expr && if_expr->evaluate(dc))

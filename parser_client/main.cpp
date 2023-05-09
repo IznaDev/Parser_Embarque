@@ -28,7 +28,7 @@ int main()
             cout << "Could not add function '" << p.first << "' : " << result.message << endl;
         }
     }
-    
+
     MemoryDataContext dc;
     dc.add_or_set("var_1", 5);
     dc.add_or_set("var_2", 3);
@@ -51,6 +51,8 @@ int main()
                 {
                     parse_result.expression->update(&dc);
                 }
+                cout << "Expression complète: " << parse_result.expression->to_cstr() << endl;
+                cout << "Expression simplifiée: " << parse_result.expression->simplify()->to_cstr() << endl;
                 cout << expression << " = " << result << endl;
             }
             else

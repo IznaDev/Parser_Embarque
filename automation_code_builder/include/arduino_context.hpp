@@ -1,7 +1,6 @@
 #include "automation.hpp"
 #include "hcsr501.hpp"
 #include "LED.hpp"
-#include "automation_test.hpp"
 
 
 
@@ -47,13 +46,3 @@ class ArduinoFactory: public IDeviceFactory
             else return Device_Type::INVALID;
         }
 };
-
-namespace Automation
-{
-    static IDeviceFactory* getFactory(const char* target)
-    {
-      if (target == "arduino")
-        return new ArduinoFactory();
-      return  nullptr;
-    }
-}
