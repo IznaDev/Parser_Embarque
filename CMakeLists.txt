@@ -8,9 +8,9 @@ set(proj_name parser_embarque)
 
 project(${proj_name} VERSION 0.1)
 
-add_subdirectory(json_schema_validator)
-
 add_subdirectory(expression_parser)
+
+add_subdirectory(json_schema_validator)
 
 add_subdirectory(parser_client)
 
