@@ -14,5 +14,3 @@ add_subdirectory(parser_client)
 
 add_subdirectory(automation_code_builder)
 
-add_subdirectory(json_schema_validator)
-
