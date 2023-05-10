@@ -10,9 +10,9 @@ project(${proj_name} VERSION 0.1)
 
 add_subdirectory(expression_parser)
 
-add_subdirectory(json_schema_validator)
-
 add_subdirectory(parser_client)
 
 add_subdirectory(automation_code_builder)
+
+add_subdirectory(json_schema_validator)
 

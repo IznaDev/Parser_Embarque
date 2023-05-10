@@ -84,5 +84,14 @@ TEST(validJSON, noElse)
     EXPECT_ANY_THROW(validJson(SCHEMA, json));
 }
 
+TEST(validJSON, is_empty)
+{
+    ifstream valid("../../../automation_code_builder/tests_automation/test_files/empty.json");
+    json json = json::parse(valid);
+    valid.close();
+
+    EXPECT_ANY_THROW(validJson(SCHEMA, json));
+}
+
 
 
