@@ -3,6 +3,7 @@ cmake_minimum_required(VERSION 3.2)
 option(JSON_VALIDATOR_INSTALL "Install target" ON)
 option(JSON_VALIDATOR_HUNTER "Enable Hunter package manager support" OFF)
 
+
 if(JSON_VALIDATOR_HUNTER)
     include("cmake/HunterGate.cmake")
     HunterGate(

@@ -1,5 +1,12 @@
 set(comp_name automation_code_builder)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    json 
+    URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_subdirectory(json_schema_validator)
 
 add_executable(${comp_name} main.cpp

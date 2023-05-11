@@ -65,15 +65,6 @@ Validation_Json BehaviorsExist::validate_item(const json& item) const noexcept
     string delimiter2 = "}";
     string delimiter3 = ".";
 
-    /*
-    int start = behaviorsIf.find(delimiter1);
-    int end = behaviorsIf.find(delimiter2);
-
-    behaviorsIf = behaviorsIf.substr(start, end);
-
-    cout << behaviorsIf << endl;
-    */
-
     for(int i = 0; i < item["devices"].size();i++)
     {
         cout << item["devices"][i]["id"] << endl;

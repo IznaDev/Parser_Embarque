@@ -20,7 +20,7 @@ class HCSR501 : public virtual IInput
 
         long get_value(const char* value_id) const override
             {
-                //analogRead(pin);
+                analogRead(pin);
                 return 5;
             }
 
