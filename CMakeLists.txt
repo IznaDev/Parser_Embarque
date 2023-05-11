@@ -8,9 +8,15 @@ set(proj_name parser_embarque)
 
 project(${proj_name} VERSION 0.1)
 
+include(FetchContent)
+
+FetchContent_Declare(
+    json 
+    URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
+
 add_subdirectory(expression_parser)
 
 add_subdirectory(parser_client)
 
 add_subdirectory(automation_code_builder)
-

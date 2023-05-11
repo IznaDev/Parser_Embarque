@@ -1,0 +1,14 @@
+{
+    "target":"arduino",
+    "devices":[
+        {
+            "id":"presence_1",
+            "type":"HC-SR501",
+            "config":
+            {
+                "pin":15
+            },
+            "inputs":["detection"]
+        }
+    ]
+}
