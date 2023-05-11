@@ -3,13 +3,15 @@
 
 #define SCHEMA "../../../schema.json"
 
+Validation_Json compareTrue{true, "Le fichier est conforme au schéma !"};
+
 TEST(validJSON, validJSON)
 {
     ifstream valid("../../../automation_code_builder/tests_automation/test_files/validJson.json");
     json json = json::parse(valid);
     valid.close();
 
-    EXPECT_NO_THROW(validJson(SCHEMA, json));
+    EXPECT_EQ(validJson(SCHEMA, json).message, compareTrue.message);
 }
 
 TEST(validJSON, noTarget)
@@ -17,7 +19,6 @@ TEST(validJSON, noTarget)
     ifstream valid("../../../automation_code_builder/tests_automation/test_files/noTarget.json");
     json json = json::parse(valid);
     valid.close();
-
     EXPECT_ANY_THROW(validJson(SCHEMA, json));
 }
 

@@ -36,5 +36,6 @@ int main(int argc, char* argv[])
     ArduinoCodeBuilder builder;
     builder.build(json, output_directory);
     cout << "Completed" << endl;
+
     return 0;
 }
