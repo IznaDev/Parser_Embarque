@@ -2,8 +2,9 @@
 #include "arduino_context.hpp"
 #include "automation_test.hpp"
 #include "arduino_code_builder.hpp"
+#include "validator.hpp"
 
-
+#define SCHEMA "../../schema.json"
 
 int main(int argc, char* argv[])
 {
@@ -21,10 +22,8 @@ int main(int argc, char* argv[])
         return 0;
     }
     json json = json::parse(file);
-    //1. Valider json avec schéma
-    //TODO arthur
-    //2. Valider json avec parser
-    // TODO arthur
+    file.close();
+    validJson(SCHEMA, json);
     //3. Générer le code qui décrit les settings
     // TODO oussama: à compléter et tester
     filesystem::path output_directory ("generated_code");
@@ -37,5 +36,6 @@ int main(int argc, char* argv[])
     ArduinoCodeBuilder builder;
     builder.build(json, output_directory);
     cout << "Completed" << endl;
+
     return 0;
 }

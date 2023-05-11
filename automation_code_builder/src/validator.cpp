@@ -1,48 +1,10 @@
-#include "../include/validator.hpp"
-
-bool isExist(string filepath)
-{
-    fstream file(filepath);
-
-    if(file.good())
-    {
-        cout << "Le fichier " << filepath << " existe !" << endl;
-        file.close();
-        return true;
-    }
-    else
-    {
-        cout << "Fichier introuvable !" << endl;
-        return false;
-    }
-}
-
-bool isCorrect(string filepath)
-{
-    ifstream input(filepath);
-    json j = json::parse(input);
-
-
-    if(j.is_structured())
-    {
-        cout << "Le fichier est bien conforme au format JSON !" << endl;
-        input.close();
-        return true;
-    }
-    else
-    {
-        cout << "Le fichier n'est pas conforme au format JSON ou est vide!" << endl;
-        input.close();
-        return false;
-    }
-}
+#include "validator.hpp"
 
 json createSchema(string schema)
 {
     ifstream input(schema);
     json schemaJson = json::parse(input);
     input.close();
-
     return schemaJson;
 }
 
@@ -53,19 +15,78 @@ json_validator validSchema(string schema)
     return validator;
 }
 
-void validJson(string schema, string filepath)
-{
-    ifstream input(filepath);
-    json compare = json::parse(input);
-    json_validator validator = validSchema(schema);
-    input.close();
 
-    if(validator.validate(compare) == nullptr)
+Validation_Json validJson(string schema, json file)
+{
+    json_validator validator = validSchema(schema);
+
+
+    if(validator.validate(file) == nullptr)
     {
-        cout << "Le fichier est conforme au schéma !" << endl;
+        ostringstream message;
+        message << "Le fichier est conforme au schéma !";
+        return Validation_Json{true, message.str()};
     }
     else
     {
-        throw invalid_argument("Le fichier n'est pas conforme au schéma !");
+        ostringstream message;
+        message << "Le fichier n'est pas conforme au schéma !";
+        return Validation_Json{false, message.str()};
     }
+}
+
+Validation_Json TargetExists::validate_item(const json& item) const noexcept
+{
+    if(item["target"] != "arduino")
+    {
+        ostringstream message;
+        message << "La cible " << item["target"] << " n'est pas supportée !";
+        return Validation_Json{false, message.str()};
+    }
+    return validate_next_item(item);
+}
+
+Validation_Json DevicesExist::validate_item(const json& item) const noexcept
+{
+    if(item["device"]["type"] != "HCSR501" || item["device"]["type"] != "LED")
+    {
+        ostringstream message;
+        message << "L'élément " << item["device"]["type"] << " n'est pas supportée !";
+        return Validation_Json{false, message.str()};
+    }
+    return validate_next_item(item);
+}
+
+Validation_Json BehaviorsExist::validate_item(const json& item) const noexcept
+{
+    
+    vector<string> devicesID;
+    string delimiter1 = "{";
+    string delimiter2 = "}";
+    string delimiter3 = ".";
+
+    /*
+    int start = behaviorsIf.find(delimiter1);
+    int end = behaviorsIf.find(delimiter2);
+
+    behaviorsIf = behaviorsIf.substr(start, end);
+
+    cout << behaviorsIf << endl;
+    */
+
+    for(int i = 0; i < item["devices"].size();i++)
+    {
+        cout << item["devices"][i]["id"] << endl;
+        if(item["devices"][i]["inputs"] == true)
+        {
+            cout << item["devices"][i]["inputs"] << endl;
+        }
+        else if(item["devices"][i]["outputs"] == true)
+        {
+            cout << item["devices"][i]["outputs"] << endl;
+        }
+    }
+
+
+    return validate_next_item(item);
 }

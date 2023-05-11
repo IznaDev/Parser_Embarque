@@ -8,10 +8,12 @@ set(proj_name parser_embarque)
 
 project(${proj_name} VERSION 0.1)
 
-include_directories(../../json-schema-validator/build/)
-link_directories(../../json-schema-validator/build/json-schema-validate)
+include(FetchContent)
 
-find_package(nlohmann_json 3.9.1 REQUIRED)
+FetchContent_Declare(
+    json 
+    URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
+FetchContent_MakeAvailable(json)
 
 add_subdirectory(expression_parser)
 
@@ -19,3 +21,17 @@ add_subdirectory(parser_client)
 
 add_subdirectory(automation_code_builder)
 
+#Problème:
+#En partant d'un projet sans dossier build
+#1er build:
+# Le projet est configuré, mais ne parvient pas à gérer la bibliothèque jscon_schema_validator
+# La création du projet s'arrête
+
+#On commente la ligne 3 du CMakeLists dans "automation_code_builder"
+#2ème build:
+# Crée tous les tests de "expression_parser"
+# Parvient à crée "validator.cpp", ce qui signifie que la bibliothèque json_schema_validator est bien reconnue
+
+#On décommente la ligne 3 du CMakeLists dans "automation_code_builder"
+#3ème build:
+# Créer l'intégralité des executables
