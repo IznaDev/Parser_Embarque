@@ -14,14 +14,13 @@ class HCSR501 : public virtual IInput
         bool setup() override
             {
                 pinMode(pin,INPUT_DEVICE);
-                //output << "pinMode("<< pin << "," << INPUT_DEVICE << ");";
                 return true;
             }
 
         long get_value(const char* value_id) const override
             {
-                //analogRead(pin);
-                return 5;
+                long result = analogRead(pin);
+                return result;
             }
 
     private:

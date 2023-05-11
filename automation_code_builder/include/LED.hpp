@@ -7,6 +7,7 @@ class LED : public virtual IOutput
    
     private:
         long pin;
+        long value{0};
     public:
         LED(const char* id, const DeviceSettings& settings): IDevice(id, "LED", settings), pin(settings.get_config().at_or_default("pin", -1)){}
 
@@ -17,25 +18,28 @@ class LED : public virtual IOutput
         
         bool setup() override
             {
-                //pinMode(pin,OUTPUT_DEVICE);
-                
+                pinMode(pin,OUTPUT_DEVICE);
+                digitalWrite(pin, value);
                 return true;
             }
 
          bool set_value(const char* value_id, long value) override
          {
-              //digitalWrite(pin,value);
+              this->value = value;
+              digitalWrite(pin,value);
               return true;
          }
 
-         bool increase_value(const char* value_id, long value) override
+         bool increase_value(const char* value_id, long i_value) override
          {
-            //digitalWrite(pin,value);
+            this->value+=i_value;
+            digitalWrite(pin,value);
             return true;
          }
-         bool decrease_value(const char* value_id, long value) override
+         bool decrease_value(const char* value_id, long d_value) override
          {
-            //digitalWrite(pin,value);
+            this->value-=d_value;
+            digitalWrite(pin,value);
             return true;
          }
 

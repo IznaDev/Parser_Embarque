@@ -1,10 +1,6 @@
 #include "parser.hpp"
-#include "arduino_context.hpp"
-#include "automation_test.hpp"
 #include "arduino_code_builder.hpp"
-#include "validator.hpp"
 
-#define SCHEMA "../../schema.json"
 
 int main(int argc, char* argv[])
 {
@@ -23,7 +19,6 @@ int main(int argc, char* argv[])
     }
     json json = json::parse(file);
     file.close();
-    validJson(SCHEMA, json);
     //3. Générer le code qui décrit les settings
     // TODO oussama: à compléter et tester
     filesystem::path output_directory ("generated_code");

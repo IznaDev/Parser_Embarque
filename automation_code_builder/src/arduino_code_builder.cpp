@@ -1,6 +1,6 @@
 #include "arduino_code_builder.hpp"
 #include "parser.hpp"
-
+#include "automation.hpp"
 #include <iostream>
 using namespace std;
 
@@ -239,12 +239,6 @@ void copy_included_files(const json& json, const filesystem::path& output_direct
     vector<string> automation_code_builder_files
     {
         "automation.hpp",
-        //TODO arduino_context.hpp doit être généré dynamiquement pour que le factory ne contienne que des rérérences
-        // aux devices utilisés (pour avoir le fichier compilé le plus petit possible)
-        "arduino_context.hpp",
-        // TODO La liste des fichiers à inclure doit dépendre des devices du fichier json
-        "hcsr501.hpp",
-        "LED.hpp"
     };
 
     for(const auto& file: expression_parser_files)
@@ -262,10 +256,100 @@ void copy_included_files(const json& json, const filesystem::path& output_direct
     }
 }
 
+const map<string,string> devices_includes{{"HC-SR501", "hcsr501.hpp"},{"LED", "LED.hpp"}};
+const map<string, string> devices_instances{{"HC-SR501", "HCSR501"},{"LED", "LED"}};
+const map<string, Device_Type> devices_types{{"HC-SR501", Device_Type::INPUT},{"LED", Device_Type::OUTPUT}};
+
+string to_string(Device_Type type)
+{
+    switch (type)
+    {
+    case Device_Type::INPUT: return "Device_Type::INPUT" ;
+    case Device_Type::OUTPUT: return "Device_Type::OUTPUT";
+    case Device_Type::INPUTOUTPUT: return "Device_Type::INPUTOUTPUT";
+    
+    default:
+        return "Device_Type::INVALID";
+    }
+}
+
+void build_arduino_data_context(const json& json , const filesystem::path& output_directory)
+{
+    ofstream dc_output(output_directory / filesystem::path("arduino_context.hpp"));
+    set<string> types;
+    dc_output << "#include \"automation.hpp\"" << endl;
+    for(const auto& d: json["devices"])
+    {
+        string type = d["type"];
+        types.emplace(type);
+    }
+    for(const auto& t: types)
+    {
+        string file = devices_includes.at(t);
+        dc_output <<"#include \"" << file << "\"" << endl;
+        filesystem::path src = filesystem::path("../../automation_code_builder/include")/filesystem::path(file);
+        filesystem::path dest = output_directory/src.filename();
+        filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
+    }
+
+    dc_output << endl << endl << "class ArduinoFactory: public IDeviceFactory" << endl;
+    dc_output << "{" << endl;
+    dc_output << "\tpublic:" << endl;
+    dc_output << "\t\tIInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) const override" << endl;
+    dc_output << "\t\t{" << endl;
+    for(const auto& t: types)
+    {
+        if(devices_types.at(t) == Device_Type::INPUT)
+        {
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+        }
+        
+    }
+    dc_output << "\t\t\treturn nullptr;" << endl;
+    dc_output << "\t\t}" << endl;
+    dc_output << "\t\tIOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings) const override" << endl;
+    dc_output << "\t\t{" << endl;
+    for(const auto& t: types)
+    {
+        if(devices_types.at(t) == Device_Type::OUTPUT)
+        {
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+        }
+        
+    }
+    dc_output << "\t\t\treturn nullptr;" << endl;
+    dc_output << "\t\t}" << endl;
+    dc_output << "\t\tIInputOutput* buildInputOutput(const char* id, const char* type, const DeviceSettings& settings) const override" << endl;
+    dc_output << "\t\t{" << endl;
+    for(const auto& t: types)
+    {
+        if(devices_types.at(t) == Device_Type::INPUTOUTPUT)
+        {
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+        }
+        
+    }
+    dc_output << "\t\t\treturn nullptr;" << endl;
+    dc_output << "\t\t}" << endl;
+    dc_output << "\t\tDevice_Type get_device_type(const char* type) const override" << endl;
+    dc_output << "\t\t{" << endl;
+    for(const auto& t: types)
+    {
+        Device_Type d_type = devices_types.at(t);
+        dc_output << "\t\t\tif(type == \"" << t << "\") return " << to_string(d_type) << ";" << endl;
+        
+    }
+
+    dc_output << "\t\t\treturn " << to_string(Device_Type::INVALID) << ";" << endl;
+    dc_output << "\t\t}" << endl;
+    dc_output << "};" << endl;
+
+}
+
 
 void ArduinoCodeBuilder::build(const json& json, const filesystem::path& output_directory)
 {
-
+    build_arduino_data_context(json, output_directory);
     copy_included_files(json, output_directory);
     ofstream output(output_directory / filesystem::path("main_code.cpp"));
 
