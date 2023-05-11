@@ -17,25 +17,25 @@ class LED : public virtual IOutput
         
         bool setup() override
             {
-                //pinMode(pin,OUTPUT_DEVICE);
+                pinMode(pin,OUTPUT_DEVICE);
                 
                 return true;
             }
 
          bool set_value(const char* value_id, long value) override
          {
-              //digitalWrite(pin,value);
+              digitalWrite(pin,value);
               return true;
          }
 
          bool increase_value(const char* value_id, long value) override
          {
-            //digitalWrite(pin,value);
+            digitalWrite(pin,value);
             return true;
          }
          bool decrease_value(const char* value_id, long value) override
          {
-            //digitalWrite(pin,value);
+            digitalWrite(pin,value);
             return true;
          }
 
