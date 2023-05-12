@@ -59,7 +59,7 @@ class IInputOutput: public virtual IInput, public virtual IOutput
 {
 };
 
-enum Device_Type{INPUT, OUTPUT, INPUTOUTPUT, INVALID};
+enum Device_Type{INPUT_DEVICE, OUTPUT_DEVICE, INPUTOUTPUT_DEVICE, INVALID_DEVICE};
 class IDeviceFactory
 {
     public:
@@ -230,13 +230,13 @@ class DeviceDataContext : public DataContext
             // En fonction des settings
             switch(t)
             {
-                case Device_Type::INPUT:
+                case Device_Type::INPUT_DEVICE:
                     add_or_set_input(factory->buildInput(id, type, settings));
                     break;
-                case Device_Type::OUTPUT:
+                case Device_Type::OUTPUT_DEVICE:
                     add_or_set_output(factory->buildOutput(id, type, settings));
                     break;
-                case Device_Type::INPUTOUTPUT:
+                case Device_Type::INPUTOUTPUT_DEVICE:
                     add_or_set_inputoutput(factory->buildInputOutput(id, type, settings));    
                     break;
                 default: break;

@@ -18,7 +18,7 @@ class LED : public virtual IOutput
         
         bool setup() override
             {
-                pinMode(pin,OUTPUT_DEVICE);
+                pinMode(pin,OUTPUT);
                 digitalWrite(pin, value);
                 return true;
             }

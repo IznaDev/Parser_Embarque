@@ -256,20 +256,21 @@ void copy_included_files(const json& json, const filesystem::path& output_direct
     }
 }
 
-const map<string,string> devices_includes{{"HC-SR501", "hcsr501.hpp"},{"LED", "LED.hpp"}};
+// TODO utiliser un system qui va lire dans le dossier drivers arduino les différents drivers disponibles et leur types
+const map<string,string> devices_includes{{"HC-SR501", "HCSR501.hpp"},{"LED", "LED.hpp"}};
 const map<string, string> devices_instances{{"HC-SR501", "HCSR501"},{"LED", "LED"}};
-const map<string, Device_Type> devices_types{{"HC-SR501", Device_Type::INPUT},{"LED", Device_Type::OUTPUT}};
+const map<string, Device_Type> devices_types{{"HC-SR501", Device_Type::INPUT_DEVICE},{"LED", Device_Type::OUTPUT_DEVICE}};
 
 string to_string(Device_Type type)
 {
     switch (type)
     {
-    case Device_Type::INPUT: return "Device_Type::INPUT" ;
-    case Device_Type::OUTPUT: return "Device_Type::OUTPUT";
-    case Device_Type::INPUTOUTPUT: return "Device_Type::INPUTOUTPUT";
+    case Device_Type::INPUT_DEVICE: return "Device_Type::INPUT_DEVICE" ;
+    case Device_Type::OUTPUT_DEVICE: return "Device_Type::OUTPUT_DEVICE";
+    case Device_Type::INPUTOUTPUT_DEVICE: return "Device_Type::INPUTOUTPUT_DEVICE";
     
     default:
-        return "Device_Type::INVALID";
+        return "Device_Type::INVALID_DEVICE";
     }
 }
 
@@ -287,7 +288,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     {
         string file = devices_includes.at(t);
         dc_output <<"#include \"" << file << "\"" << endl;
-        filesystem::path src = filesystem::path("../../automation_code_builder/include")/filesystem::path(file);
+        filesystem::path src = filesystem::path("../../automation_code_builder/drivers/arduino")/filesystem::path(file);
         filesystem::path dest = output_directory/src.filename();
         filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
     }
@@ -299,7 +300,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::INPUT)
+        if(devices_types.at(t) == Device_Type::INPUT_DEVICE)
         {
             dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
         }
@@ -311,7 +312,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::OUTPUT)
+        if(devices_types.at(t) == Device_Type::OUTPUT_DEVICE)
         {
             dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
         }
@@ -323,7 +324,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::INPUTOUTPUT)
+        if(devices_types.at(t) == Device_Type::INPUTOUTPUT_DEVICE)
         {
             dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
         }
@@ -340,7 +341,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
         
     }
 
-    dc_output << "\t\t\treturn " << to_string(Device_Type::INVALID) << ";" << endl;
+    dc_output << "\t\t\treturn " << to_string(Device_Type::INVALID_DEVICE) << ";" << endl;
     dc_output << "\t\t}" << endl;
     dc_output << "};" << endl;
 

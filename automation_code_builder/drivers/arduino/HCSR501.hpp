@@ -13,7 +13,7 @@ class HCSR501 : public virtual IInput
         
         bool setup() override
             {
-                pinMode(pin,INPUT_DEVICE);
+                pinMode(pin,INPUT);
                 return true;
             }
 
