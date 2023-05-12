@@ -15,7 +15,7 @@ json_validator validSchema(string schema)
     return validator;
 }
 
-
+/*
 Validation_Json validJson(string schema, json file)
 {
     json_validator validator = validSchema(schema);
@@ -81,3 +81,4 @@ Validation_Json BehaviorsExist::validate_item(const json& item) const noexcept
 
     return validate_next_item(item);
 }
+*/
