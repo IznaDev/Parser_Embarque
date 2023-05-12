@@ -17,6 +17,10 @@ FetchContent_MakeAvailable(json)
 
 add_subdirectory(expression_parser)
 
+set(PROJECT_LIBS ${PROJECT_LIBS}
+    "expression_parser"
+)
+
 add_subdirectory(parser_client)
 
 add_subdirectory(automation_code_builder)

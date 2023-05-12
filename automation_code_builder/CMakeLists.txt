@@ -11,6 +11,6 @@ target_include_directories(${comp_name} PUBLIC
 
 target_link_libraries(${comp_name} 
 PUBLIC 
-    ${CMAKE_SOURCE_DIR}/build/expression_parser/src/libexpression_parser.a
+    ${PROJECT_LIBS}
 PRIVATE 
     nlohmann_json::nlohmann_json)
