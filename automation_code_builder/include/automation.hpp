@@ -1,4 +1,5 @@
 #pragma once
+
 #include "container.hpp"
 #include "data_context.hpp"
 #include <string.h>
@@ -44,12 +45,14 @@ class IDevice
 class IInput: public virtual IDevice
 {
     public:
+    IInput(){}
     virtual long get_value(const char* value_id) const = 0;
 };
 
 class IOutput: public virtual IDevice
 {
     public:
+    IOutput(){}
     virtual bool set_value(const char* value_i, long value) = 0;
     virtual bool increase_value(const char* value_i, long value) =0;
     virtual bool decrease_value(const char* value_i, long value) =0;
@@ -57,12 +60,15 @@ class IOutput: public virtual IDevice
 
 class IInputOutput: public virtual IInput, public virtual IOutput
 {
+    public:
+    IInputOutput(){}
 };
 
-enum Device_Type{INPUT, OUTPUT, INPUTOUTPUT, INVALID};
+enum Device_Type{INPUT_DEVICE, OUTPUT_DEVICE, INPUTOUTPUT_DEVICE, INVALID_DEVICE};
 class IDeviceFactory
 {
     public:
+        IDeviceFactory(){}
         virtual Device_Type get_device_type(const char* type) const = 0;
         virtual IInput* buildInput(const char* id, const char* type, const DeviceSettings& settings) const = 0;
         virtual IOutput* buildOutput(const char* id, const char* type, const DeviceSettings& settings) const  = 0;
@@ -230,13 +236,13 @@ class DeviceDataContext : public DataContext
             // En fonction des settings
             switch(t)
             {
-                case Device_Type::INPUT:
+                case Device_Type::INPUT_DEVICE:
                     add_or_set_input(factory->buildInput(id, type, settings));
                     break;
-                case Device_Type::OUTPUT:
+                case Device_Type::OUTPUT_DEVICE:
                     add_or_set_output(factory->buildOutput(id, type, settings));
                     break;
-                case Device_Type::INPUTOUTPUT:
+                case Device_Type::INPUTOUTPUT_DEVICE:
                     add_or_set_inputoutput(factory->buildInputOutput(id, type, settings));    
                     break;
                 default: break;

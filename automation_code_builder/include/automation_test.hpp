@@ -129,16 +129,16 @@ class TestFactory: public IDeviceFactory
         {
             if(type == "testinput")
             {
-                return Device_Type::INPUT;
+                return Device_Type::INPUT_DEVICE;
             }
             else if(type == "testoutput")
             {
-                return Device_Type::OUTPUT;
+                return Device_Type::OUTPUT_DEVICE;
             }
             else if(type == "testinputoutput")
             {
-                return Device_Type::INPUTOUTPUT;
+                return Device_Type::INPUTOUTPUT_DEVICE;
             }
-            else return Device_Type::INVALID;
+            else return Device_Type::INVALID_DEVICE;
         }
 };

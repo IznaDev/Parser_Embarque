@@ -1,10 +1,6 @@
 #include "parser.hpp"
-#include "arduino_context.hpp"
-#include "automation_test.hpp"
-#include "arduino_code_builder.hpp"
-#include "validator.hpp"
+#include "code_builder_factory.hpp"
 
-#define SCHEMA "../../schema.json"
 
 int main(int argc, char* argv[])
 {
@@ -23,18 +19,19 @@ int main(int argc, char* argv[])
     }
     json json = json::parse(file);
     file.close();
-    validJson(SCHEMA, json);
-    //3. Générer le code qui décrit les settings
-    // TODO oussama: à compléter et tester
+    //1. TODO arthur: valider le schéma json
+    //2. TODO arthur: valider que les infos renseignées son supportées (target, devices type, références)
+    //3. TODO oussama: à compléter et tester. Générer le code qui décrit les settings 
     filesystem::path output_directory ("generated_code");
     cout << "Generating code to: " << filesystem::absolute(output_directory) << endl;
-    if(!filesystem::exists(output_directory))
+    if(filesystem::exists(output_directory))
     {
-        filesystem::create_directory(output_directory);
+        filesystem::remove_all(output_directory);
     }
+    filesystem::create_directory(output_directory);
 
-    ArduinoCodeBuilder builder;
-    builder.build(json, output_directory);
+    ICodeBuilder* builder = CodeBuilderFactory::build(json["target"]);
+    builder->build(json, output_directory);
     cout << "Completed" << endl;
 
     return 0;
