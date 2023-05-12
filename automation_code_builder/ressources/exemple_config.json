@@ -24,7 +24,8 @@
             "type":"LED",
             "config":
             {
-                "pin":10
+                "pin":10,
+                "init_value": 0
             },
             "outputs":["intensite"]
         }

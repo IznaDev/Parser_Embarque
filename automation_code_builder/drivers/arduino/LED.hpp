@@ -9,7 +9,8 @@ class LED : public virtual IOutput
         long pin;
         long value{0};
     public:
-        LED(const char* id, const DeviceSettings& settings): IDevice(id, "LED", settings), pin(settings.get_config().at_or_default("pin", -1)){}
+        LED(const char* id, const DeviceSettings& settings): IDevice(id, "LED", settings), pin(settings.get_config().at_or_default("pin", -1)),
+        value(settings.get_config().at_or_default("init_value", 0)){}
 
         bool are_settings_valid() const override
             {
