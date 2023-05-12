@@ -226,7 +226,7 @@ void add_loop_method(ofstream& output)
 
 void copy_included_files(const json& json, const filesystem::path& output_directory)
 {
-    vector<string> expression_parser_files{
+    vector<string> expression_parser_files_include{
         "container.hpp",
         "data_context.hpp",
         "expression.hpp",
@@ -236,14 +236,31 @@ void copy_included_files(const json& json, const filesystem::path& output_direct
         "expr_affectation.hpp"
     };
 
+    vector<string> expression_parser_files_src{
+        "container.cpp",
+        "data_context.cpp",
+        "expression.cpp",
+        "expr_mathematical.cpp",
+        "expr_logical.cpp",
+        "expr_functions.cpp",
+        "expr_affectation.cpp"
+    };
+
     vector<string> automation_code_builder_files
     {
         "automation.hpp",
     };
 
-    for(const auto& file: expression_parser_files)
+    for(const auto& file: expression_parser_files_include)
     {
        filesystem::path src = filesystem::path("../../expression_parser/include")/filesystem::path(file);
+       filesystem::path dest = output_directory/src.filename();
+       filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
+    }
+
+    for(const auto& file: expression_parser_files_src)
+    {
+       filesystem::path src = filesystem::path("../../expression_parser/src")/filesystem::path(file);
        filesystem::path dest = output_directory/src.filename();
        filesystem::copy(src, dest, filesystem::copy_options::overwrite_existing);
     }
