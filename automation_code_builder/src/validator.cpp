@@ -15,26 +15,21 @@ json_validator validSchema(string schema)
     return validator;
 }
 
-/*
-Validation_Json validJson(string schema, json file)
+
+void validJson(string schema, json file)
 {
     json_validator validator = validSchema(schema);
 
 
     if(validator.validate(file) == nullptr)
     {
-        ostringstream message;
-        message << "Le fichier est conforme au schéma !";
-        return Validation_Json{true, message.str()};
+        cout << "Le fichier est conforme au schéma !" << endl;
     }
-    else
-    {
-        ostringstream message;
-        message << "Le fichier n'est pas conforme au schéma !";
-        return Validation_Json{false, message.str()};
-    }
-}
 
+    cout << "ERROR" << endl;
+
+}
+/*
 Validation_Json TargetExists::validate_item(const json& item) const noexcept
 {
     if(item["target"] != "arduino")
