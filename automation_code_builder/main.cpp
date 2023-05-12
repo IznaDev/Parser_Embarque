@@ -1,6 +1,8 @@
 #include "parser.hpp"
 #include "code_builder_factory.hpp"
+#include "validator.hpp"
 
+#define SCHEMA "../../schema.json"
 
 int main(int argc, char* argv[])
 {
@@ -20,6 +22,7 @@ int main(int argc, char* argv[])
     json json = json::parse(file);
     file.close();
     //1. TODO arthur: valider le schéma json
+    validJson(SCHEMA, json);
     //2. TODO arthur: valider que les infos renseignées son supportées (target, devices type, références)
     //3. TODO oussama: à compléter et tester. Générer le code qui décrit les settings 
     filesystem::path output_directory ("generated_code");

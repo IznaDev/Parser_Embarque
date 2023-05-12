@@ -25,9 +25,6 @@ void validJson(string schema, json file)
     {
         cout << "Le fichier est conforme au schéma !" << endl;
     }
-
-    cout << "ERROR" << endl;
-
 }
 /*
 Validation_Json TargetExists::validate_item(const json& item) const noexcept
