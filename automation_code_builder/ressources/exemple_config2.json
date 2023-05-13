@@ -11,6 +11,15 @@
             "inputs":["detection"]
         },
         {
+            "id":"presence_2",
+            "type":"HC-SR501",
+            "config":
+            {
+                "pin":15
+            },
+            "inputs":["detection"]
+        },
+        {
             "id":"lampe_1",
             "type":"LED",
             "config":
@@ -24,6 +33,11 @@
     "behaviors":[
         {
             "if":"${presence_1.detection} > 0",
+            "then": "${lampe_1.intensite} = 255",
+            "else": "${lampe_1.intensite} = 0"
+        },
+        {
+            "if":"max(${presence_2.detection}, ${presence_1.detection}) < 0",
             "then": "${lampe_1.intensite} = 255",
             "else": "${lampe_1.intensite} = 0"
         }

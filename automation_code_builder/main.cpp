@@ -23,11 +23,8 @@ int main(int argc, char* argv[])
     file.close();
     Automation_Validator validator(validation_schema_path);
     auto validation_result = validator.validate(json);
-    //1. TODO arthur: valider le schéma json
     if(validation_result)
     {
-        //2. TODO arthur: valider que les infos renseignées son supportées (target, devices type, références)
-        //3. TODO oussama: à compléter et tester. Générer le code qui décrit les settings 
         filesystem::path output_directory ("generated_code");
         cout << "Generating code to: " << filesystem::absolute(output_directory) << endl;
         if(filesystem::exists(output_directory))
