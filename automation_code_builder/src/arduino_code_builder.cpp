@@ -2,6 +2,8 @@
 #include "parser.hpp"
 #include "automation.hpp"
 #include <iostream>
+#include "driver.hpp"
+
 using namespace std;
 
 void ArduinoCodebuilderExpressionVisitor::visit(const Expression* expr)
@@ -273,11 +275,6 @@ void copy_included_files(const json& json, const filesystem::path& output_direct
     }
 }
 
-// TODO utiliser un system qui va lire dans le dossier drivers arduino les différents drivers disponibles et leur types
-const map<string,string> devices_includes{{"HC-SR501", "HCSR501.hpp"},{"LED", "LED.hpp"}};
-const map<string, string> devices_instances{{"HC-SR501", "HCSR501"},{"LED", "LED"}};
-const map<string, Device_Type> devices_types{{"HC-SR501", Device_Type::INPUT_DEVICE},{"LED", Device_Type::OUTPUT_DEVICE}};
-
 string to_string(Device_Type type)
 {
     switch (type)
@@ -295,15 +292,17 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
 {
     ofstream dc_output(output_directory / filesystem::path("arduino_context.hpp"));
     set<string> types;
+    string target_name = json["target"];
     dc_output << "#include \"automation.hpp\"" << endl;
     for(const auto& d: json["devices"])
     {
         string type = d["type"];
         types.emplace(type);
     }
+    const DeviceCollection& target = supported_targets.get_target(target_name);
     for(const auto& t: types)
     {
-        string file = devices_includes.at(t);
+        string file = target.get_device(t).get_includeFileName();
         dc_output <<"#include \"" << file << "\"" << endl;
         filesystem::path src = filesystem::path("../../automation_code_builder/drivers/arduino")/filesystem::path(file);
         filesystem::path dest = output_directory/src.filename();
@@ -317,9 +316,10 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::INPUT_DEVICE)
+        const SupportedDevice& device = target.get_device(t);
+        if(device.get_type() == Device_Type::INPUT_DEVICE)
         {
-            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << device.get_className() << "(id, settings);" << endl;
         }
         
     }
@@ -329,9 +329,10 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::OUTPUT_DEVICE)
+        const SupportedDevice& device = target.get_device(t);
+        if(device.get_type() == Device_Type::OUTPUT_DEVICE)
         {
-            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << device.get_className() << "(id, settings);" << endl;
         }
         
     }
@@ -341,9 +342,10 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        if(devices_types.at(t) == Device_Type::INPUTOUTPUT_DEVICE)
+        const SupportedDevice& device = target.get_device(t);
+        if(device.get_type() == Device_Type::INPUTOUTPUT_DEVICE)
         {
-            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << devices_instances.at(t) << "(id, settings);" << endl;
+            dc_output << "\t\t\tif(type == \"" << t << "\") return new " << device.get_className() << "(id, settings);" << endl;
         }
         
     }
@@ -353,7 +355,7 @@ void build_arduino_data_context(const json& json , const filesystem::path& outpu
     dc_output << "\t\t{" << endl;
     for(const auto& t: types)
     {
-        Device_Type d_type = devices_types.at(t);
+        Device_Type d_type = target.get_device(t).get_type();
         dc_output << "\t\t\tif(type == \"" << t << "\") return " << to_string(d_type) << ";" << endl;
         
     }

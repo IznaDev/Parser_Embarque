@@ -14,6 +14,7 @@ struct Validation_Result
     bool is_valid{true};
     string message{""};
     operator bool() const {return is_valid;}
+    Validation_Result(bool is_valid=true, const string& message=""):is_valid(is_valid), message(message){};
 };
 
 class Expression_Parser;
