@@ -10,6 +10,8 @@ DeviceCollection::DeviceCollection(const string& driver)
     if(supported_drivers.good())
     {
         string line;
+        //skip headers
+        getline(supported_drivers, line);
         while(getline(supported_drivers, line))
         {
             istringstream l{line};

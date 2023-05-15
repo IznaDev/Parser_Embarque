@@ -22,7 +22,22 @@ class GY21 : public virtual IInput
 
         long get_value(const char* value_id) const override
         {
-            long result = analogRead(pin);
+            int index = settings.get_inputs().at_or_default(value_id, -1);
+            long result = 0;
+            if(index >=0)
+            {
+                switch (index)
+                {
+                    case 0:
+                        //TODO lire humidite (voir doc driver du capteur)
+                        result = 50; break;
+                    case 1:
+                        //TODO lire temperature
+                        result = 21; break;
+                    default:
+                        result = 0; break;
+                }
+            }
             return result;
-        }      
+        }    
 };
