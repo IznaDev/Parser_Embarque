@@ -1,0 +1,61 @@
+{
+    "target":"arduino",
+    "devices":[
+        {
+            "id":"capteur_HT",
+            "type":"GY-21",
+            "config":
+            {
+                "pin":2
+            },
+            "inputs":["humidite", "temperature"]
+        },
+        {
+            "id":"green_LED",
+            "type":"LED",
+            "config":
+            {
+                "pin":10,
+                "init_value": 0
+            },
+            "outputs":["intensite_1"]
+        },
+        {
+            "id":"red_LED",
+            "type":"LED",
+            "config":
+            {
+                "pin":15,
+                "init_value": 0
+            },
+            "outputs":["intensite_2"]
+        },
+        {
+            "id":"blue_LED",
+            "type":"LED",
+            "config":
+            {
+                "pin":2,
+                "init_value": 0
+            },
+            "outputs":["intensite_3"]
+        }
+    ],
+    "behaviors":[
+        {
+            "if":"${capteur_HT.humidite} > 50",
+            "then": "${green_LED.intensite_1} = 255",
+            "else": "${green_LED.intensite_1} = 0"
+        },
+        {
+            "if":"${capteur_HT.temperature} > 25",
+            "then": "${red_LED.intensite_2} = 255",
+            "else": "${red_LED.intensite_2} = 0"
+        },
+        {
+            "if":"${capteur_HT.temperature} < 25",
+            "then": "${blue_LED.intensite_3} = 255",
+            "else": "${blue_LED.intensite_3} = 0"
+        }
+    ]
+}

@@ -76,7 +76,7 @@
     },
     "cmake.debugConfig": {
         "args": [
-            "../../automation_code_builder/ressources/exemple_config.json"
+            "../../automation_code_builder/ressources/exemple_config4.json"
         ]
     }
 }
