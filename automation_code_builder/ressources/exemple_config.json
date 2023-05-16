@@ -6,7 +6,7 @@
             "type":"HC-SR501",
             "config":
             {
-                "pin":15
+                "pin":7
             },
             "inputs":["detection"]
         },
@@ -15,7 +15,7 @@
             "type":"LED",
             "config":
             {
-                "pin":10,
+                "pin":12,
                 "init_value": 0
             },
             "outputs":["intensite"]
@@ -24,7 +24,7 @@
     "behaviors":[
         {
             "if":"${presence_1.detection} > 0",
-            "then": "${lampe_1.intensite} = 255",
+            "then": "${lampe_1.intensite} = 1",
             "else": "${lampe_1.intensite} = 0"
         }
     ]

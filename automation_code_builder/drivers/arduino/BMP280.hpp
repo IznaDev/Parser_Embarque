@@ -16,7 +16,7 @@ class BMP280 : public virtual IInput
 
         bool setup() override
         {
-            pinMode(pin, INPUT);
+            pinMode(pin, INPUT_DEVICE);
             return true;
         }
 

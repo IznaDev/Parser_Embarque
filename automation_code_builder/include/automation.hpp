@@ -153,7 +153,7 @@ class IInput: public virtual IDevice
      * @param value_id the user defined value identifier
      * @return long 
      */
-    virtual long get_value(const char* value_id) const = 0;
+    virtual int get_value(const char* value_id) const = 0;
 };
 
 /**

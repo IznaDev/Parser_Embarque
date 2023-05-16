@@ -17,9 +17,9 @@ class HCSR501 : public virtual IInput
                 return true;
             }
 
-        long get_value(const char* value_id) const override
+        int get_value(const char* value_id) const override
             {
-                long result = analogRead(pin);
+                int result = digitalRead(pin);
                 return result;
             }
 
