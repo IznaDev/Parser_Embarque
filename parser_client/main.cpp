@@ -51,8 +51,6 @@ int main()
                 {
                     parse_result.expression->update(&dc);
                 }
-                cout << "Expression complète: " << parse_result.expression->to_cstr() << endl;
-                cout << "Expression simplifiée: " << parse_result.expression->simplify()->to_cstr() << endl;
                 cout << expression << " = " << result << endl;
             }
             else

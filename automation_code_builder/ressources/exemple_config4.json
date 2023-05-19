@@ -49,12 +49,12 @@
         },
         {
             "if":"${capteur_HT.temperature} > 25",
-            "then": "${red_LED.intensite_2} = 255",
+            "then": "${red_LED.intensite_2} = 1",
             "else": "${red_LED.intensite_2} = 0"
         },
         {
             "if":"${capteur_HT.temperature} < 25",
-            "then": "${blue_LED.intensite_3} = 255",
+            "then": "${blue_LED.intensite_3} = 1",
             "else": "${blue_LED.intensite_3} = 0"
         }
     ]

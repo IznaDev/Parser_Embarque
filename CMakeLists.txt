@@ -16,11 +16,11 @@ FetchContent_Declare(
     URL https://github.com/nlohmann/json/releases/download/v3.11.2/json.tar.xz)
 FetchContent_MakeAvailable(json)
 
+set(lib_name expression_parser)
+
 add_subdirectory(expression_parser)
 
-set(PROJECT_LIBS_PUBLIC ${PROJECT_LIBS_PUBLIC}
-    "expression_parser"
-)
+set(PROJECT_LIBS_PUBLIC ${lib_name})
 
 add_subdirectory(parser_client)
 
